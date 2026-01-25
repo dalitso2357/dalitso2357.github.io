@@ -1,0 +1,2862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.1">
+    <title>LearNet - Math & Physics</title>
+    <style>
+        /* ====== RESET & BASE ====== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            font-size: 18px;
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f5f7ff 0%, #f0f2ff 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+        
+        /* ====== AUTHENTICATION ====== */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a3a6b 0%, #2c5aa0 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 1rem;
+        }
+        
+        .auth-container {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .auth-header {
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .auth-header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            border-bottom: 2px solid #e1e8f0;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            padding: 1.2rem;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-tab.active {
+            color: #2c5aa0;
+            border-bottom: 3px solid #2c5aa0;
+            background: #f0f7ff;
+        }
+        
+        .auth-form {
+            padding: 2rem;
+        }
+        
+        .auth-form.hidden {
+            display: none;
+        }
+        
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid #e1e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            border-color: #2c5aa0;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+        }
+        
+        .btn {
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #2c5aa0;
+            color: white;
+            width: 100%;
+        }
+        
+        .btn-primary:hover {
+            background: #1a3a6b;
+        }
+        
+        /* ====== MAIN APP ====== */
+        .app-container {
+            display: none;
+        }
+        
+        /* ====== HEADER ====== */
+        .header {
+            background: linear-gradient(135deg, #2c5aa0, #1a3a6b);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            color: #2c5aa0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        /* ====== BOTTOM NAVIGATION ====== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.8rem 0;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+            padding: 0.5rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 80px;
+        }
+        
+        .nav-icon {
+            font-size: 1.3rem;
+            margin-bottom: 0.3rem;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-item span {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .nav-item.active {
+            color: #2c5aa0;
+            background: rgba(44, 90, 160, 0.1);
+        }
+        
+        .nav-item:hover {
+            color: #2c5aa0;
+        }
+        
+        /* ====== CONTENT SECTIONS ====== */
+        .content-section {
+            display: none;
+            padding: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* ====== HOME SECTION ====== */
+        .welcome-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.8rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #2c5aa0;
+        }
+        
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-top: 4px solid #2c5aa0;
+        }
+        
+        .stat-number {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #2c5aa0;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .quick-link {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .quick-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            color: #2c5aa0;
+        }
+        
+        .quick-link-icon {
+            font-size: 1.5rem;
+            color: #2c5aa0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* ====== MATH & PHYSICS SECTIONS ====== */
+        .subject-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .subject-tabs {
+            display: flex;
+            background: #f0f7ff;
+            border-radius: 10px;
+            padding: 0.3rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .subject-tab {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .subject-tab.active {
+            background: #2c5aa0;
+            color: white;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.2rem;
+        }
+        
+        .content-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-top: 4px solid #2c5aa0;
+        }
+        
+        .content-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-title {
+            color: #2c5aa0;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+        
+        .card-subtitle {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card-difficulty {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .difficulty-easy { background: #e8f5e9; color: #2e7d32; }
+        .difficulty-medium { background: #fff3e0; color: #ef6c00; }
+        .difficulty-hard { background: #ffebee; color: #c62828; }
+        
+        .card-description {
+            color: #555;
+            font-size: 0.95rem;
+            margin-bottom: 1.2rem;
+            line-height: 1.6;
+        }
+        
+        .card-example {
+            background: #f0f7ff;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 1.2rem;
+            border-left: 3px solid #2c5aa0;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .card-btn {
+            flex: 1;
+            padding: 0.7rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .view-btn {
+            background: #2c5aa0;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #1a3a6b;
+        }
+        
+        .practice-btn {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .practice-btn:hover {
+            background: #3d8b40;
+        }
+        
+        /* ====== EQUATIONS SECTION ====== */
+        .equations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .equation-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.8rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid #4CAF50;
+        }
+        
+        .equation-title {
+            color: #2c5aa0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .equation-formula {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            border: 2px solid #e1e8f0;
+        }
+        
+        .equation-explanation {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1.2rem;
+        }
+        
+        .equation-applications {
+            background: #fff3e0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            border-left: 3px solid #FF9800;
+        }
+        
+        /* ====== CONJECTURES & PARADOXES ====== */
+        .theory-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.8rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            border-left: 5px solid #9C27B0;
+        }
+        
+        .theory-status {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .status-unproven { background: #ffebee; color: #c62828; }
+        .status-proven { background: #e8f5e9; color: #2e7d32; }
+        .status-paradox { background: #fff3e0; color: #ef6c00; }
+        
+        .theory-content {
+            color: #444;
+            font-size: 1rem;
+            line-height: 1.7;
+            margin-bottom: 1.2rem;
+        }
+        
+        .theory-highlight {
+            background: #f0f7ff;
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin: 1.2rem 0;
+            border-left: 4px solid #2c5aa0;
+        }
+        
+        .theory-fact {
+            background: #e8f5e9;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-top: 1.2rem;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        /* ====== PROFILE SECTION ====== */
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .progress-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1.8rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .progress-item {
+            margin-bottom: 1.5rem;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #e1e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2c5aa0, #3a7bd5);
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
+        
+        /* ====== ABOUT US SECTION ====== */
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.8rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-item:hover {
+            background: #f0f7ff;
+            transform: translateX(5px);
+        }
+        
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .contact-whatsapp { background: #25D366; }
+        .contact-email { background: #EA4335; }
+        .contact-website { background: #4267B2; }
+        .contact-address { background: #1DA1F2; }
+        .contact-hours { background: #FF9800; }
+        
+        .team-member {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #2c5aa0;
+        }
+        
+        .business-hours {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-top: 1.5rem;
+        }
+        
+        .hour-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .hour-row:last-child {
+            border-bottom: none;
+        }
+        
+        /* ====== MODAL ====== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 1rem;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #2c5aa0, #3a7bd5);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 20px 20px 0 0;
+            position: relative;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        /* ====== CUSTOM ICONS USING CSS ====== */
+        .icon-home::before { content: "🏠"; }
+        .icon-math::before { content: "📐"; }
+        .icon-physics::before { content: "⚛"; }
+        .icon-practice::before { content: "✏️"; }
+        .icon-profile::before { content: "👤"; }
+        .icon-about::before { content: "ℹ️"; }
+        .icon-calculator::before { content: "🧮"; }
+        .icon-atom::before { content: "⚛"; }
+        .icon-brain::before { content: "🧠"; }
+        .icon-question::before { content: "❓"; }
+        .icon-search::before { content: "🔍"; }
+        .icon-plus::before { content: "➕"; }
+        .icon-minus::before { content: "➖"; }
+        .icon-multiply::before { content: "✖️"; }
+        .icon-divide::before { content: "➗"; }
+        .icon-percent::before { content: "📊"; }
+        .icon-square::before { content: "🔢"; }
+        .icon-bonus::before { content: "🎯"; }
+        .icon-check::before { content: "✓"; }
+        .icon-cross::before { content: "✗"; }
+        .icon-arrow-left::before { content: "←"; }
+        .icon-arrow-right::before { content: "→"; }
+        
+        /* ====== RESPONSIVE ====== */
+        @media (max-width: 768px) {
+            html {
+                font-size: 16px;
+            }
+            
+            .content-grid,
+            .equations-grid,
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-bar {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .nav-item span {
+                display: none;
+            }
+            
+            .nav-icon {
+                font-size: 1.5rem;
+                margin-bottom: 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content-section {
+                padding: 1rem;
+            }
+            
+            .subject-tabs {
+                flex-direction: column;
+            }
+            
+            .card-actions {
+                flex-direction: column;
+            }
+        }
+      
+      /* ====== ADD TO EXISTING CSS ====== */
+      .category-card {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      }
+      
+      .category-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+      background: #f0f7ff;
+      }
+      
+      /* Also update the search button style to match the image */
+      .search-container {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      }
+      
+      .search-input {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border: 2px solid #e1e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      }
+      
+      .search-input:focus {
+      border-color: #2c5aa0;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(44, 90, 160, 0.1);
+      }
+    </style>
+</head>
+<body>
+    <!-- AUTHENTICATION MODAL -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>LearNet</h1>
+                <p>Master Math & Physics</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+            
+            <div class="auth-form" id="loginForm">
+                <form id="loginFormData">
+                    <div class="form-group">
+                        <label for="loginUsername">Username</label>
+                        <input type="text" id="loginUsername" placeholder="Enter username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <p style="text-align: center; margin-top: 1rem; color: #666;">
+                    <a href="#" id="switchToRegister" style="color: #2c5aa0; text-decoration: none;">Don't have an account? Register</a>
+                </p>
+                <div style="text-align: center; margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                    <p>Demo: username: demo, password: demo</p>
+                </div>
+            </div>
+            
+            <div class="auth-form hidden" id="registerForm">
+                <form id="registerFormData">
+                    <div class="form-group">
+                        <label for="registerName">Full Name</label>
+                        <input type="text" id="registerName" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerUsername">Username</label>
+                        <input type="text" id="registerUsername" placeholder="Choose username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" placeholder="Create password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                </form>
+                <p style="text-align: center; margin-top: 1rem; color: #666;">
+                    <a href="#" id="switchToLogin" style="color: #2c5aa0; text-decoration: none;">Already have an account? Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div class="app-container" id="appContainer">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="header-content">
+                <div>
+                    <h1>LearNet</h1>
+                    <p>Math & Physics Learning</p>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span id="userName" style="font-weight: 600;">User</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- CONTENT SECTIONS -->
+        <section class="content-section active" id="homeSection">
+            <div class="welcome-card">
+                <h2 style="color: #2c5aa0; margin-bottom: 0.5rem;">Welcome to LearNet!</h2>
+                <p style="color: #666;">Master mathematics and physics through interactive learning, detailed explanations, and practice problems.</p>
+            </div>
+            
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <span class="stat-number" id="totalTopics">58</span>
+                    <span class="stat-label">Total Topics</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="learnedCount">0</span>
+                    <span class="stat-label">Learned</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="practiceCount">0</span>
+                    <span class="stat-label">Practice Sessions</span>
+                </div>
+            </div>
+            
+            <h2 style="color: #2c5aa0; margin-bottom: 1rem;">Quick Access</h2>
+            <div class="quick-links">
+                <a href="#" class="quick-link" data-section="math">
+                    <div class="quick-link-icon icon-calculator"></div>
+                    <div>
+                        <h3 style="font-size: 1.1rem;">Math Tricks</h3>
+                        <p style="font-size: 0.9rem; color: #666;">22 useful techniques</p>
+                    </div>
+                </a>
+                <a href="#" class="quick-link" data-section="physics">
+                    <div class="quick-link-icon icon-atom"></div>
+                    <div>
+                        <h3 style="font-size: 1.1rem;">Physics Equations</h3>
+                        <p style="font-size: 0.9rem; color: #666;">Key formulas explained</p>
+                    </div>
+                </a>
+                <a href="#" class="quick-link" data-section="conjectures">
+                    <div class="quick-link-icon icon-brain"></div>
+                    <div>
+                        <h3 style="font-size: 1.1rem;">Conjectures</h3>
+                        <p style="font-size: 0.9rem; color: #666;">Unsolved mysteries</p>
+                    </div>
+                </a>
+                <a href="#" class="quick-link" data-section="paradoxes">
+                    <div class="quick-link-icon icon-question"></div>
+                    <div>
+                        <h3 style="font-size: 1.1rem;">Paradoxes</h3>
+                        <p style="font-size: 0.9rem; color: #666;">Mind-bending puzzles</p>
+                    </div>
+                </a>
+            </div>
+            
+            <div style="margin-top: 2rem;">
+                <h2 style="color: #2c5aa0; margin-bottom: 1rem;">Today's Challenge</h2>
+                <div class="content-card">
+                    <div class="card-title">Daily Math Problem</div>
+                    <div class="card-description">Solve this using the "Multiply by 11" trick: What is 76 × 11?</div>
+                    <div class="card-actions">
+                        <button class="card-btn view-btn" onclick="showDailyChallenge()">Solve</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MATH SECTION -->
+        <section class="content-section" id="mathSection">
+            <div class="subject-header">
+                <h2 style="color: #2c5aa0;">Mathematics</h2>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="card-btn view-btn" onclick="searchMath()" style="padding: 0.5rem 1rem;">
+                        <span class="icon-search"></span> Search
+                    </button>
+                </div>
+            </div>
+            
+            <div class="subject-tabs">
+                <button class="subject-tab active" data-subtab="tricks">Math Tricks</button>
+                <button class="subject-tab" data-subtab="conjectures">Conjectures</button>
+                <button class="subject-tab" data-subtab="paradoxes">Paradoxes</button>
+            </div>
+            
+            <div id="mathTricksContent" class="content-subsection">
+                <div class="content-grid" id="mathTricksGrid">
+                    <!-- Math tricks will be loaded here -->
+                </div>
+            </div>
+            
+            <div id="mathConjecturesContent" class="content-subsection" style="display: none;">
+                <div id="mathConjecturesList">
+                    <!-- Math conjectures will be loaded here -->
+                </div>
+            </div>
+            
+            <div id="mathParadoxesContent" class="content-subsection" style="display: none;">
+                <div id="mathParadoxesList">
+                    <!-- Math paradoxes will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- PHYSICS SECTION -->
+        <section class="content-section" id="physicsSection">
+            <div class="subject-header">
+                <h2 style="color: #2c5aa0;">Physics</h2>
+            </div>
+            
+            <div class="subject-tabs">
+                <button class="subject-tab active" data-subtab="equations">Key Equations</button>
+                <button class="subject-tab" data-subtab="theories">Theories</button>
+                <button class="subject-tab" data-subtab="concepts">Core Concepts</button>
+            </div>
+            
+            <div id="physicsEquationsContent" class="content-subsection">
+                <div class="equations-grid" id="physicsEquationsGrid">
+                    <!-- Physics equations will be loaded here -->
+                </div>
+            </div>
+            
+            <div id="physicsTheoriesContent" class="content-subsection" style="display: none;">
+                <div id="physicsTheoriesList">
+                    <!-- Physics theories will be loaded here -->
+                </div>
+            </div>
+            
+            <div id="physicsConceptsContent" class="content-subsection" style="display: none;">
+                <div id="physicsConceptsList">
+                    <!-- Physics concepts will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- PROFILE SECTION -->
+        <section class="content-section" id="profileSection">
+            <div class="profile-card">
+                <div class="profile-avatar" id="profileAvatar">U</div>
+                <h2 id="profileName" style="color: #2c5aa0;">User Name</h2>
+                <p id="profileUsername" style="color: #666;">@username</p>
+                <p style="color: #666; margin-top: 0.5rem;">Member since <span id="joinDate">2024</span></p>
+            </div>
+            
+            <div class="progress-container">
+                <h3 style="color: #2c5aa0; margin-bottom: 1.5rem;">Learning Progress</h3>
+                
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>Math Topics</span>
+                        <span id="mathProgress">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="mathProgressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>Physics Topics</span>
+                        <span id="physicsProgress">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="physicsProgressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>Practice Accuracy</span>
+                        <span id="accuracyProgress">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="accuracyProgressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button class="btn" onclick="logout()" style="background: #f0f7ff; color: #2c5aa0;">Logout</button>
+            </div>
+        </section>
+
+        <!-- PRACTICE SECTION -->
+        <section class="content-section" id="practiceSection">
+            <div class="subject-header">
+                <h2 style="color: #2c5aa0;">Practice Problems</h2>
+            </div>
+            
+            <div id="practiceContent">
+                <!-- Practice problems will be loaded here -->
+            </div>
+        </section>
+
+        <!-- ABOUT US SECTION -->
+        <section class="content-section" id="aboutSection">
+            <div class="profile-card">
+                <div class="profile-avatar" style="background: linear-gradient(135deg, #4CAF50, #2E7D32);">L</div>
+                <h2 style="color: #2c5aa0;">LearNet</h2>
+                <p style="color: #666;">Math & Physics Learning Platform</p>
+                <p style="color: #666; margin-top: 0.5rem;">Version 3.0.0</p>
+            </div>
+            
+            <div class="content-card" style="margin-bottom: 1.5rem;">
+                <div class="card-title">About This Platform</div>
+                <div class="card-description">
+                    LearNet is an interactive learning platform designed to make mathematics, physics and other subjects
+                    accessible and engaging for students of all levels. Our mission is to simplify complex 
+                    concepts through intuitive explanations, practical tricks, and interactive practice.
+                </div>
+            </div>
+            
+            <div class="content-card" style="margin-bottom: 1.5rem;">
+                <div class="card-title">Development Team</div>
+                
+                <div class="team-member">
+                    <h3 style="color: #2c5aa0; margin-bottom: 0.5rem;">CEO & Lead Developer</h3>
+                    <p style="font-weight: 600; color: #333;">Dalitso Mutengo</p>
+                    <p style="color: #666; font-size: 0.9rem; margin-top: 0.3rem;">7+. in Mathematics, Mpatamatu Sec School</p>
+                    <p style="color: #666; font-size: 0.9rem;">4+ years in educational technology</p>
+                </div>
+                
+                <div class="team-member">
+                    <h3 style="color: #2c5aa0; margin-bottom: 0.5rem;">Physics Content Lead</h3>
+                    <p style="font-weight: 600; color: #333;">Dalitso Mutengo</p>
+                    <p style="color: #666; font-size: 0.9rem; margin-top: 0.3rem;">4+ experience. in Physics</p>
+                    <p style="color: #666; font-size: 0.9rem;">lead developer  at ZinnEx</p>
+                </div>
+                
+                <div class="team-member">
+                    <h3 style="color: #2c5aa0; margin-bottom: 0.5rem;">UI/UX Designer</h3>
+                    <p style="font-weight: 600; color: #333;">Dalitso Mutengo</p>
+                    <p style="color: #666; font-size: 0.9rem; margin-top: 0.3rem;">Interaction Design</p>
+                    <p style="color: #666; font-size: 0.9rem;">Specialized in educational interfaces</p>
+                </div>
+            </div>
+            
+            <div class="content-card" style="margin-bottom: 1.5rem;">
+                <div class="card-title">Contact Information</div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon contact-whatsapp">
+                        <span>📱</span>
+                    </div>
+                    <div>
+                        <p style="font-weight: 600; color: #333;">Business WhatsApp</p>
+                        <p style="color: #666; font-size: 0.9rem;">+26-0768-887-799 or +26-0773-668-384</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon contact-email">
+                        <span>✉️</span>
+                    </div>
+                    <div>
+                        <p style="font-weight: 600; color: #333;">Email</p>
+                        <p style="color: #666; font-size: 0.9rem;">dalitsomutengo12@gmail.com</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon contact-website">
+                        <span>🌐</span>
+                    </div>
+                    <div>
+                        <p style="font-weight: 600; color: #333;">Website</p>
+                        <p style="color: #666; font-size: 0.9rem;">https://dalitsomutengo12-svg.github.io/lernet/</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon contact-address">
+                        <span>🏢</span>
+                    </div>
+                    <div>
+                        <p style="font-weight: 600; color: #333;">Office Address</p>
+                        <p style="color: #666; font-size: 0.9rem;">Section 27, Amulo, 768</p>
+                        <p style="color: #666; font-size: 0.9rem;">Mpatamatu, Luanshya</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-card">
+                <div class="card-title">Business Hours</div>
+                <div class="business-hours">
+                    <div class="hour-row">
+                        <span style="font-weight: 600;">Monday - Friday</span>
+                        <span>9:00 AM - 6:00 PM GMT</span>
+                    </div>
+                    <div class="hour-row">
+                        <span style="font-weight: 600;">Saturday</span>
+                        <span>10:00 AM - 4:00 PM GMT</span>
+                    </div>
+                    <div class="hour-row">
+                        <span style="font-weight: 600;">Sunday</span>
+                        <span>Closed</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem; padding: 1rem; background: #E8F5E9; border-radius: 8px;">
+                    <p style="color: #2E7D32; font-size: 0.9rem;">
+                        <strong>Note:</strong> For immediate assistance, please use our WhatsApp business number. 
+                        We typically respond within 1-2 business hours.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav">
+        <a href="#" class="nav-item active" data-section="home">
+            <div class="nav-icon icon-home"></div>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item" data-section="math">
+            <div class="nav-icon icon-math"></div>
+            <span>Math</span>
+        </a>
+        <a href="#" class="nav-item" data-section="physics">
+            <div class="nav-icon icon-physics"></div>
+            <span>Physics</span>
+        </a>
+        <a href="#" class="nav-item" data-section="practice">
+            <div class="nav-icon icon-practice"></div>
+            <span>Practice</span>
+        </a>
+        <a href="#" class="nav-item" data-section="profile">
+            <div class="nav-icon icon-profile"></div>
+            <span>Profile</span>
+        </a>
+        <a href="#" class="nav-item" data-section="about">
+            <div class="nav-icon icon-about"></div>
+            <span>About</span>
+        </a>
+    </nav>
+
+    <!-- DETAIL MODAL -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====== EXTENSIVE DATA ======
+       // Update the mathTricks object to match the image structure
+       const mathTricks = {
+       addition: [
+       {
+       id: "add-left-right",
+       title: "Adding Left to Right",
+       difficulty: "easy",
+       description: "Instead of traditional right-to-left addition, add from left to right for mental math.",
+       example: "47 + 36 = (40+30) + (7+6) = 70 + 13 = 83",
+       explanation: "Break numbers into tens and ones, add tens first, then ones, then combine. This method is faster for mental calculations because it processes numbers in the order we read them.",
+       practice: [
+       { question: "What is 28 + 45?", answer: "73", explanation: "20+40=60, 8+5=13, 60+13=73" },
+       { question: "Calculate 63 + 29.", answer: "92", explanation: "60+20=80, 3+9=12, 80+12=92" }
+       ],
+       applications: "Mental math, quick estimations, everyday calculations"
+       },
+       {
+       id: "rounding-addition",
+       title: "Rounding & Adjusting",
+       difficulty: "easy",
+       description: "Round numbers to nearest ten, add, then adjust for rounding differences.",
+       example: "48 + 37 = (50+40) - (2+3) = 90 - 5 = 85",
+       explanation: "This technique is excellent for numbers close to round figures. Round both numbers up to the nearest ten, add them, then subtract the total amount you rounded up.",
+       practice: [
+       { question: "Use rounding for 29 + 56.", answer: "85", explanation: "30+60=90, subtract 1+4=5, 90-5=85" },
+       { question: "Add 68 + 47 with rounding.", answer: "115", explanation: "70+50=120, subtract 2+3=5, 120-5=115" }
+       ],
+       applications: "Quick additions, mental math, estimation"
+       },
+       {
+       id: "break-apart",
+       title: "Break Apart Strategy",
+       difficulty: "easy",
+       description: "Break one number into parts that are easier to add.",
+       example: "37 + 25 = 37 + 20 + 5 = 57 + 5 = 62",
+       explanation: "Also known as the decomposition method. Break the second number into tens and ones, add the tens first, then add the ones.",
+       practice: [
+       { question: "Break apart 46 + 28.", answer: "74", explanation: "46+20=66, 66+8=74" },
+       { question: "Calculate 53 + 39 using break apart.", answer: "92", explanation: "53+30=83, 83+9=92" }
+       ],
+       applications: "Teaching basic addition, mental calculations"
+       }
+       ],
+       subtraction: [
+       {
+       id: "complement-method",
+       title: "Complement Method (9's Complement)",
+       difficulty: "medium",
+       description: "Use complements from 10, 100, or 1000 for subtraction.",
+       example: "1000 - 357 = 643 (9-3=6, 9-5=4, 10-7=3)",
+       explanation: "For subtracting from powers of 10 (10, 100, 1000), take the 9's complement of each digit except the last, which uses 10's complement.",
+       practice: [
+       { question: "100 - 28 = ?", answer: "72", explanation: "9-2=7, 10-8=2 → 72" },
+       { question: "1000 - 473 = ?", answer: "527", explanation: "9-4=5, 9-7=2, 10-3=7 → 527" }
+       ],
+       applications: "Computer arithmetic, mental subtraction from powers of 10"
+       },
+       {
+       id: "equal-addition",
+       title: "Equal Addition Method",
+       difficulty: "medium",
+       description: "Add same amount to both numbers to eliminate borrowing.",
+       example: "73 - 48 = (73+2) - (48+2) = 75 - 50 = 25",
+       explanation: "Also called the Austrian method. Add the same number to both minuend and subtrahend to make subtraction easier.",
+       practice: [
+       { question: "Use equal addition for 62 - 29.", answer: "33", explanation: "62+1=63, 29+1=30, 63-30=33" },
+       { question: "Calculate 85 - 37.", answer: "48", explanation: "85+3=88, 37+3=40, 88-40=48" }
+       ],
+       applications: "Mental subtraction, teaching subtraction without borrowing"
+       },
+       {
+       id: "counting-up",
+       title: "Counting Up Method",
+       difficulty: "easy",
+       description: "Count up from the smaller number to the larger number.",
+       example: "73 - 48: From 48 to 50 = 2, 50 to 70 = 20, 70 to 73 = 3, total = 25",
+       explanation: "Instead of subtracting, think of the difference between numbers. Count from the smaller number up to the larger in easy jumps.",
+       practice: [
+       { question: "82 - 47 using counting up.", answer: "35", explanation: "47 to 50 = 3, 50 to 80 = 30, 80 to 82 = 2, total = 35" },
+       { question: "95 - 38 using counting up.", answer: "57", explanation: "38 to 40 = 2, 40 to 90 = 50, 90 to 95 = 5, total = 57" }
+       ],
+       applications: "Mental math, cashier calculations, everyday subtraction"
+       }
+       ],
+       multiplication: [
+       {
+       id: "multiply-11",
+       title: "Multiply by 11 (Two-digit numbers)",
+       difficulty: "easy",
+       description: "For two-digit numbers, add digits and put sum between them.",
+       example: "35 × 11 = 3(3+5)5 = 385",
+       explanation: "This works because 11 = 10 + 1. For AB × 11 = A(A+B)B. If A+B > 9, carry over to A.",
+       practice: [
+       { question: "42 × 11 = ?", answer: "462", explanation: "4(4+2)2 = 462" },
+       { question: "78 × 11 = ?", answer: "858", explanation: "7(7+8)8 = 7(15)8 = 858 (carry 1)" }
+       ],
+       applications: "Quick calculations, mental math"
+       },
+       {
+       id: "multiply-5",
+       title: "Multiply by 5 Quickly",
+       difficulty: "easy",
+       description: "To multiply by 5, multiply by 10 and divide by 2.",
+       example: "28 × 5 = (28 × 10) ÷ 2 = 280 ÷ 2 = 140",
+       explanation: "Since 5 = 10 ÷ 2, this method converts multiplication into simpler operations.",
+       practice: [
+       { question: "46 × 5 = ?", answer: "230", explanation: "46×10=460, 460÷2=230" },
+       { question: "73 × 5 = ?", answer: "365", explanation: "73×10=730, 730÷2=365" }
+       ],
+       applications: "Quick calculations, mental math"
+       },
+       {
+       id: "multiply-25",
+       title: "Multiply by 25 Quickly",
+       difficulty: "easy",
+       description: "To multiply by 25, multiply by 100 and divide by 4.",
+       example: "32 × 25 = (32 × 100) ÷ 4 = 3200 ÷ 4 = 800",
+       explanation: "Since 25 = 100 ÷ 4, this simplifies the calculation significantly.",
+       practice: [
+       { question: "44 × 25 = ?", answer: "1100", explanation: "44×100=4400, 4400÷4=1100" },
+       { question: "68 × 25 = ?", answer: "1700", explanation: "68×100=6800, 6800÷4=1700" }
+       ],
+       applications: "Mental calculations, price calculations"
+       },
+       {
+       id: "vedic-multiplication",
+       title: "Vedic Multiplication (Vertically & Crosswise)",
+       difficulty: "medium",
+       description: "Ancient Indian method for multiplying any two numbers.",
+       example: "21 × 23: Right: 1×3=3, Cross: (2×3)+(2×1)=6+2=8, Left: 2×2=4 → 483",
+       explanation: "Step 1: Multiply right digits. Step 2: Cross multiply and add. Step 3: Multiply left digits.",
+       practice: [
+       { question: "32 × 24 = ?", answer: "768", explanation: "Right: 2×4=8, Cross: (3×4)+(2×2)=12+4=16 (write 6, carry 1), Left: 3×2=6+carry1=7 → 768" },
+       { question: "43 × 57 = ?", answer: "2451", explanation: "Right: 3×7=21 (write 1, carry 2), Cross: (4×7)+(3×5)=28+15=43+carry2=45 (write 5, carry 4), Left: 4×5=20+carry4=24 → 2451" }
+       ],
+       applications: "Fast multiplication without calculator, competitive exams"
+       },
+       {
+       id: "multiply-close-100",
+       title: "Multiply Numbers Close to 100",
+       difficulty: "medium",
+       description: "Cross subtract differences from 100, multiply differences.",
+       example: "98×97 = (100-2)(100-3) = (98-3 or 97-2) and (2×3) = 9506",
+       explanation: "Base method: 1. Cross subtract: 98-3=95 or 97-2=95. 2. Multiply differences: 2×3=6. 3. Combine: 9506.",
+       practice: [
+       { question: "96 × 97 = ?", answer: "9312", explanation: "96-3=93, 4×3=12 → 9312" },
+       { question: "102 × 105 = ?", answer: "10710", explanation: "102+5=107, 2×5=10 → 10710" }
+       ],
+       applications: "Fast multiplication, mental calculations"
+       }
+       ],
+       division: [
+       {
+       id: "divide-5",
+       title: "Divide by 5 Quickly",
+       difficulty: "easy",
+       description: "To divide by 5, multiply by 2 and divide by 10 (or move decimal).",
+       example: "48 ÷ 5 = (48 × 2) ÷ 10 = 96 ÷ 10 = 9.6",
+       explanation: "Since 5 = 10 ÷ 2, dividing by 5 is the same as multiplying by 2 and dividing by 10.",
+       practice: [
+       { question: "75 ÷ 5 = ?", answer: "15", explanation: "75×2=150, 150÷10=15" },
+       { question: "132 ÷ 5 = ?", answer: "26.4", explanation: "132×2=264, 264÷10=26.4" }
+       ],
+       applications: "Quick division, mental math"
+       },
+       {
+       id: "divide-25",
+       title: "Divide by 25 Quickly",
+       difficulty: "easy",
+       description: "To divide by 25, multiply by 4 and divide by 100 (or move decimal twice).",
+       example: "300 ÷ 25 = (300 × 4) ÷ 100 = 1200 ÷ 100 = 12",
+       explanation: "Since 25 = 100 ÷ 4, dividing by 25 is the same as multiplying by 4 and dividing by 100.",
+       practice: [
+       { question: "200 ÷ 25 = ?", answer: "8", explanation: "200×4=800, 800÷100=8" },
+       { question: "450 ÷ 25 = ?", answer: "18", explanation: "450×4=1800, 1800÷100=18" }
+       ],
+       applications: "Percentage calculations, mental math"
+       },
+       {
+       id: "divisibility-rules",
+       title: "Quick Divisibility Tests",
+       difficulty: "medium",
+       description: "Learn rules to quickly check divisibility by 2,3,4,5,6,8,9,10,11.",
+       example: "Divisible by 3 if sum of digits divisible by 3. 123: 1+2+3=6, divisible by 3.",
+       explanation: "Quick checks: 2(last digit even), 3(sum digits ÷3), 4(last 2 digits ÷4), 5(ends 0/5), 6(÷2 and ÷3), 9(sum digits ÷9), 10(ends 0), 11(alternating sum =0 or ÷11).",
+       practice: [
+       { question: "Is 846 divisible by 3?", answer: "Yes", explanation: "8+4+6=18, 18÷3=6" },
+       { question: "Is 572 divisible by 4?", answer: "Yes", explanation: "72÷4=18" }
+       ],
+       applications: "Factoring, simplifying fractions, prime factorization"
+       }
+       ],
+       percentages: [
+       {
+       id: "percentage-10",
+       title: "10% and Adjust",
+       difficulty: "easy",
+       description: "Find 10% (move decimal left), then adjust for other percentages.",
+       example: "35% of 80 = (10% of 80)×3.5 = 8×3.5 = 28",
+       explanation: "10% is easy to calculate by moving decimal one place left. Use it as building block for other percentages.",
+       practice: [
+       { question: "45% of 120", answer: "54", explanation: "10%=12, 12×4.5=54" },
+       { question: "15% of 300", answer: "45", explanation: "10%=30, 5%=15, 30+15=45" }
+       ],
+       applications: "Tips, discounts, tax calculations"
+       },
+       {
+       id: "percentage-change",
+       title: "Percentage Increase/Decrease",
+       difficulty: "medium",
+       description: "Quick methods for calculating percentage changes.",
+       example: "Increase of 25% then decrease of 20% ≠ 5% net change. Actual: 1.25 × 0.8 = 1.0 (0% change)",
+       explanation: "For successive percentage changes, multiply factors: (1±p₁/100)×(1±p₂/100).",
+       practice: [
+       { question: "Price increases 30%, then decreases 30%. Net change?", answer: "9% decrease", explanation: "1.3 × 0.7 = 0.91 → 9% decrease" },
+       { question: "After 20% discount, item is $80. Original price?", answer: "$100", explanation: "80 ÷ 0.8 = 100" }
+       ],
+       applications: "Shopping discounts, financial calculations, data analysis"
+       },
+       {
+       id: "fraction-percent",
+       title: "Fractions to Percentages",
+       difficulty: "easy",
+       description: "Convert common fractions to percentages quickly.",
+       example: "1/8 = 12.5% (half of 25%), 5/6 ≈ 83.33%",
+       explanation: "Memorize common fractions: 1/2=50%, 1/3≈33.3%, 1/4=25%, 1/5=20%, 1/6≈16.67%, 1/8=12.5%, 1/9≈11.11%.",
+       practice: [
+       { question: "3/8 as percentage", answer: "37.5%", explanation: "1/8=12.5%, 3×12.5=37.5" },
+       { question: "5/12 as percentage", answer: "41.67%", explanation: "1/12≈8.33%, 5×8.33≈41.67" }
+       ],
+       applications: "Probability, statistics, data interpretation"
+       },
+       {
+       id: "reverse-percentage",
+       title: "Reverse Percentage",
+       difficulty: "medium",
+       description: "Find original value from percentage increase/decrease.",
+       example: "After 15% increase, price is $115. Original = 115 ÷ 1.15 = $100",
+       explanation: "If increased by x%, divide final by (1+x/100). If decreased by x%, divide final by (1-x/100).",
+       practice: [
+       { question: "After 25% off, price $75. Original?", answer: "$100", explanation: "75 ÷ 0.75 = 100" },
+       { question: "After 40% increase, value $210. Original?", answer: "$150", explanation: "210 ÷ 1.4 = 150" }
+       ],
+       applications: "Sale prices, financial analysis, data interpretation"
+       }
+       ],
+       squaring: [
+       {
+       id: "square-ending-5",
+       title: "Square Numbers Ending in 5",
+       difficulty: "easy",
+       description: "Multiply digit before 5 by next number, append 25.",
+       example: "65² = 6×7=42, append 25 = 4225",
+       explanation: "Algebraic proof: (10a+5)² = 100a² + 100a + 25 = 100a(a+1) + 25.",
+       practice: [
+       { question: "35² = ?", answer: "1225", explanation: "3×4=12, append 25 → 1225" },
+       { question: "105² = ?", answer: "11025", explanation: "10×11=110, append 25 → 11025" }
+       ],
+       applications: "Quick squaring, mental math competitions"
+       },
+       {
+       id: "square-close-50",
+       title: "Square Numbers Near 50",
+       difficulty: "medium",
+       description: "Special trick for numbers close to 50.",
+       example: "47²: Difference from 50 is -3. 25-3=22, (-3)²=9 → 2209",
+       explanation: "For n = 50±d: n² = (25±d)×100 + d². If d is negative, 25-d; if positive, 25+d.",
+       practice: [
+       { question: "53² = ?", answer: "2809", explanation: "25+3=28, 3²=9 → 2809" },
+       { question: "48² = ?", answer: "2304", explanation: "25-2=23, 2²=4 → 2304" }
+       ],
+       applications: "Fast squaring, mental calculations"
+       }
+       ],
+       bonus: [
+       {
+       id: "multiply-close-numbers",
+       title: "Multiply Close Numbers",
+       difficulty: "medium",
+       description: "Use (a+b)(a-b) = a² - b² for numbers close together.",
+       example: "47 × 53 = (50-3)(50+3) = 50² - 3² = 2500 - 9 = 2491",
+       explanation: "Difference of squares formula. Works best when numbers are symmetric around an integer.",
+       practice: [
+       { question: "38 × 42 = ?", answer: "1596", explanation: "40² - 2² = 1600 - 4 = 1596" },
+       { question: "67 × 73 = ?", answer: "4891", explanation: "70² - 3² = 4900 - 9 = 4891" }
+       ],
+       applications: "Mental multiplication, algebraic applications"
+       },
+       {
+       id: "digital-root",
+       title: "Digital Root (Casting Out 9s)",
+       difficulty: "medium",
+       description: "Sum digits until single digit. Useful for checking calculations.",
+       example: "Digital root of 247: 2+4+7=13, 1+3=4. For multiplication: 12×13=156, check: DR(12)=3, DR(13)=4, 3×4=12, DR(12)=3 matches DR(156)=1+5+6=12→1+2=3.",
+       explanation: "Digital root is remainder when divided by 9 (except 9 becomes 0). Useful for checking arithmetic quickly.",
+       practice: [
+       { question: "Find digital root of 893", answer: "2", explanation: "8+9+3=20, 2+0=2" },
+       { question: "Check 47×28=1316 using digital roots", answer: "Valid", explanation: "DR(47)=4+7=11→2, DR(28)=2+8=10→1, 2×1=2, DR(1316)=1+3+1+6=11→2" }
+       ],
+       applications: "Error checking in calculations, number theory"
+       }
+       ]
+       };
+
+        const mathConjectures = [
+            {
+                id: "collatz",
+                title: "Collatz Conjecture (3n+1 Problem)",
+                difficulty: "hard",
+                status: "unproven",
+                description: "For any positive integer, if odd: multiply by 3 and add 1; if even: divide by 2. The sequence will always reach 1.",
+                example: "Start with 6: 6→3→10→5→16→8→4→2→1",
+                explanation: "Proposed by Lothar Collatz in 1937. Despite being tested for numbers up to 2⁶⁸, no counterexample has been found. The conjecture suggests all positive integers eventually reach the cycle 4→2→1. Paul Erdős famously said: 'Mathematics may not be ready for such problems.' The problem is deceptively simple but reveals deep connections to number theory and dynamical systems.",
+                interestingFact: "The conjecture has been verified up to 2⁶⁸ ≈ 2.95×10²⁰. Terence Tao made significant progress in 2019, showing that almost all numbers eventually reach a value arbitrarily close to 1.",
+                implications: "If proven, could lead to breakthroughs in number theory, dynamical systems, and computer science."
+            },
+            {
+                id: "goldbach",
+                title: "Goldbach's Conjecture",
+                difficulty: "medium",
+                status: "unproven",
+                description: "Every even integer greater than 2 can be expressed as the sum of two prime numbers.",
+                example: "4=2+2, 6=3+3, 8=3+5, 10=3+7 or 5+5, 100=47+53",
+                explanation: "Proposed by Christian Goldbach in 1742 in a letter to Euler. While verified up to 4×10¹⁸, no general proof exists. The weak Goldbach conjecture (every odd number >5 is sum of three primes) was proven in 2013 by Harald Helfgott. The strong conjecture becomes 'more true' for larger numbers due to increasing prime density.",
+                interestingFact: "Chen Jingrun proved in 1973 that every sufficiently large even number is either the sum of two primes or a prime and a semiprime (product of two primes).",
+                implications: "Deep connections with distribution of prime numbers and additive number theory."
+            },
+            {
+                id: "twin-prime",
+                title: "Twin Prime Conjecture",
+                difficulty: "hard",
+                status: "partially proven",
+                description: "There are infinitely many prime numbers that differ by 2 (twin primes).",
+                example: "(3,5), (11,13), (17,19), (29,31), (41,43), (71,73)",
+                explanation: "A twin prime is a pair (p, p+2) where both are prime. While strongly believed true, complete proof remains elusive. In 2013, Yitang Zhang proved there are infinitely many prime pairs with gap ≤ 70 million, later improved to 246. The first Hardy-Littlewood conjecture predicts twin prime density.",
+                interestingFact: "The largest known twin primes (as of 2023) have 388,342 digits each! They are: 2996863034895 × 2¹²⁹⁰⁰⁰⁰ ± 1.",
+                implications: "Connections with prime gaps, sieve theory, and the Riemann Hypothesis."
+            },
+            {
+                id: "beal",
+                title: "Beal's Conjecture",
+                difficulty: "hard",
+                status: "unproven",
+                description: "If Aˣ + Bʸ = Cᶻ where A, B, C, x, y, z are positive integers with x, y, z > 2, then A, B, C must have a common prime factor.",
+                example: "3³ + 6³ = 3⁵ (all share factor 3)",
+                explanation: "Proposed by banker Andrew Beal in 1993 as a generalization of Fermat's Last Theorem. Beal offers a $1 million prize for proof. The conjecture implies no solutions to Aˣ + Bʸ = Cᶻ with coprime bases and all exponents > 2. Unlike FLT, this deals with different exponents.",
+                interestingFact: "All known examples have at least one exponent equal to 2, supporting the conjecture. The prize is administered by the AMS.",
+                implications: "Connections with Diophantine equations, algebraic number theory."
+            }
+        ];
+
+        const mathParadoxes = [
+            {
+                id: "birthday",
+                title: "Birthday Paradox",
+                difficulty: "easy",
+                status: "resolved",
+                description: "In a group of just 23 people, there's a 50% chance that two share a birthday.",
+                example: "In a classroom of 23 students, probability of shared birthday ≈ 50.7%",
+                explanation: "Seems counterintuitive because we think of matching our specific birthday (1/365 chance). But with 23 people, there are C(23,2)=253 possible pairs. Probability calculation: P(no match) = (365/365)×(364/365)×...×(343/365) ≈ 0.4927, so P(match) ≈ 0.5073. The number grows rapidly: 50 people gives 97% chance, 70 gives 99.9%.",
+                interestingFact: "This is used in cryptography as the 'birthday attack' to find collisions in hash functions. The square root of the number of possibilities gives the 50% point: √365 ≈ 19.1, explaining why 23 gives ~50%.",
+                applications: "Probability theory, cryptography, hash function security"
+            },
+            {
+                id: "banach-tarski",
+                title: "Banach-Tarski Paradox",
+                difficulty: "hard",
+                status: "proven",
+                description: "A solid ball can be decomposed into finite pieces and reassembled into two identical copies of the original ball.",
+                example: "Imagine taking apart a sphere and putting it back together as two spheres of the same size!",
+                explanation: "Published in 1924 by Banach and Tarski. Relies on the Axiom of Choice and uses non-measurable sets. The 'pieces' are infinitely complex and not physically realizable. Essentially shows that volume is not preserved under certain decompositions in set theory.",
+                interestingFact: "Often summarized as 'a pea can be chopped up and reassembled into the Sun' (though this requires infinitely many pieces). The paradox doesn't violate conservation of mass because the pieces aren't physically measurable.",
+                implications: "Foundational issues in measure theory, role of Axiom of Choice in mathematics."
+            },
+            {
+                id: "two-envelopes",
+                title: "Two Envelopes Paradox",
+                difficulty: "medium",
+                status: "resolved",
+                description: "Two envelopes contain money, one twice as much as the other. You pick one and are offered to switch. Paradoxically, switching seems always beneficial.",
+                example: "Suppose you open your envelope and see $100. The other has either $50 or $200 with equal probability, so expected value of switching is (50+200)/2 = $125 > $100.",
+                explanation: "The paradox arises from incorrect probability assignment. The error: assuming the other envelope is equally likely to contain half or double your amount regardless of what you see. In reality, the probability depends on the prior distribution of money in the envelopes.",
+                interestingFact: "This paradox has connections with the St. Petersburg paradox and illustrates issues with expected utility theory and prior distributions in probability.",
+                applications: "Decision theory, probability theory, game theory"
+            }
+        ];
+
+        const physicsEquations = [
+            {
+                id: "newton-second",
+                title: "Newton's Second Law",
+                formula: "F = ma",
+                explanation: "The acceleration of an object is directly proportional to the net force acting on it and inversely proportional to its mass. Direction of acceleration is same as direction of net force.",
+                derivation: "Originally expressed by Newton as F = dp/dt (force equals rate of change of momentum). For constant mass, dp/dt = m dv/dt = ma.",
+                applications: "Calculating forces in mechanical systems, vehicle dynamics, projectile motion, orbital mechanics.",
+                example: "A 2 kg object accelerates at 3 m/s². Force = 2 × 3 = 6 N."
+            },
+            {
+                id: "einstein-energy",
+                title: "Einstein's Mass-Energy Equivalence",
+                formula: "E = mc²",
+                explanation: "Energy and mass are interchangeable; a small amount of mass can be converted into a large amount of energy, where c is the speed of light (≈ 3×10⁸ m/s).",
+                derivation: "From special relativity, following from Lorentz transformations and conservation laws. Originally appeared in Einstein's 1905 paper 'Does the Inertia of a Body Depend Upon Its Energy Content?'",
+                applications: "Nuclear reactions, particle physics, understanding stellar energy, PET scans.",
+                example: "Converting 1 gram of mass yields E = 0.001 × (3×10⁸)² = 9×10¹³ J, equivalent to 21 kilotons of TNT."
+            },
+            {
+                id: "schrodinger",
+                title: "Schrödinger Equation",
+                formula: "iħ ∂ψ/∂t = Ĥψ",
+                explanation: "Fundamental equation of quantum mechanics describing how quantum state ψ evolves over time. Ĥ is Hamiltonian operator representing total energy.",
+                derivation: "Postulated by Erwin Schrödinger in 1926, inspired by de Broglie's matter waves and Hamilton's formulation of classical mechanics.",
+                applications: "Quantum chemistry, semiconductor physics, quantum computing, atomic structure.",
+                example: "For a free particle: iħ ∂ψ/∂t = -(ħ²/2m)∇²ψ, with plane wave solutions ψ = e^(i(k·r - ωt))."
+            },
+            {
+                id: "maxwell",
+                title: "Maxwell's Equations",
+                formula: `
+                    ∇·E = ρ/ε₀
+                    ∇·B = 0
+                    ∇×E = -∂B/∂t
+                    ∇×B = μ₀J + μ₀ε₀∂E/∂t
+                `,
+                explanation: "Set of four equations describing how electric and magnetic fields are generated by charges, currents, and changes of the fields.",
+                derivation: "Compiled by James Clerk Maxwell in 1861-62, unifying electricity, magnetism, and light as manifestations of electromagnetic field.",
+                applications: "Electronics, optics, wireless communication, understanding light as electromagnetic waves.",
+                example: "From these equations, wave equation for light can be derived: ∇²E = μ₀ε₀ ∂²E/∂t², predicting speed c = 1/√(μ₀ε₀)."
+            }
+        ];
+
+        const physicsTheories = [
+            {
+                id: "relativity",
+                title: "Theory of Relativity",
+                type: "Special & General",
+                explanation: "Einstein's theories revolutionized our understanding of space, time, and gravity. Special relativity (1905) deals with objects moving at constant velocity, introducing time dilation and length contraction. General relativity (1915) extends this to accelerating frames and describes gravity as curvature of spacetime.",
+                keyConcepts: "Spacetime, Lorentz transformations, equivalence principle, gravitational time dilation, black holes.",
+                evidence: "Gravitational lensing, perihelion precession of Mercury, GPS satellite time corrections, gravitational waves detection (LIGO 2015).",
+                implications: "Modern cosmology, GPS technology, understanding black holes and the expanding universe."
+            },
+            {
+                id: "quantum",
+                title: "Quantum Mechanics",
+                type: "Fundamental theory",
+                explanation: "Describes physical properties of nature at atomic and subatomic scales. Introduces wave-particle duality, quantization, uncertainty principle, and superposition. Particles are described by wavefunctions giving probability distributions.",
+                keyConcepts: "Wavefunction, superposition, entanglement, uncertainty principle, quantization, wave-particle duality.",
+                evidence: "Atomic spectra, quantum tunneling in transistors, Bell test experiments confirming entanglement, quantum computing demonstrations.",
+                implications: "Semiconductor technology, lasers, MRI, quantum computing, understanding chemical bonds."
+            },
+            {
+                id: "thermodynamics",
+                title: "Laws of Thermodynamics",
+                type: "Four fundamental laws",
+                explanation: "Govern heat, work, temperature, and energy relationships in physical systems. From conservation of energy to direction of spontaneous processes and absolute zero temperature.",
+                keyConcepts: "Energy conservation, entropy increase, absolute zero unattainability, thermal equilibrium.",
+                evidence: "Heat engine efficiency limits, refrigeration cycles, chemical reaction spontaneity, blackbody radiation.",
+                implications: "Energy conversion, chemical engineering, cosmology (heat death of universe), biological systems."
+            }
+        ];
+
+        const physicsConcepts = [
+            {
+                id: "uncertainty",
+                title: "Heisenberg Uncertainty Principle",
+                explanation: "Δx Δp ≥ ħ/2. Position and momentum cannot both be known precisely simultaneously. More generally, for any conjugate variables. Fundamental limit, not measurement limitation.",
+                example: "Electron in atom: precise energy means uncertain position.",
+                implications: "Atomic stability, quantum tunneling, fundamental limits to measurement."
+            },
+            {
+                id: "entanglement",
+                title: "Quantum Entanglement",
+                explanation: "When particles interact, their quantum states become correlated. Measuring one instantly affects the other, regardless of distance. 'Spooky action at a distance' (Einstein).",
+                example: "EPR paradox: two entangled particles with correlated spins.",
+                implications: "Quantum cryptography, teleportation, fundamental tests of quantum mechanics vs. local realism."
+            },
+            {
+                id: "wave-particle",
+                title: "Wave-Particle Duality",
+                explanation: "All quantum objects exhibit both wave and particle properties. Demonstrated by double-slit experiment: single particles create interference pattern over time.",
+                example: "Light as photons (particle) but also diffraction (wave). Electrons show diffraction patterns.",
+                implications: "Complementarity principle, foundation of quantum mechanics, particle accelerators."
+            }
+        ];
+
+        // ====== APP STATE ======
+        let currentUser = null;
+        let learnedTopics = new Set();
+        let practiceCount = 0;
+        let dayStreak = 0;
+        let lastPracticeDate = null;
+
+        // ====== INITIALIZATION ======
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is already logged in
+            const savedUser = localStorage.getItem('learnSphereUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                loadUserProgress();
+                showApp();
+            } else {
+                showAuth();
+            }
+
+            setupAuthListeners();
+            setupNavigation();
+            loadMathTricks();
+            loadPhysicsContent();
+            updateStats();
+
+            // Add demo user if none exists
+            const users = JSON.parse(localStorage.getItem('learnSphereUsers') || '[]');
+            if (users.length === 0) {
+                users.push({
+                    id: 1,
+                    name: "Demo User",
+                    username: "demo",
+                    password: "demo",
+                    joined: new Date().toLocaleDateString()
+                });
+                localStorage.setItem('learnSphereUsers', JSON.stringify(users));
+            }
+
+            // Setup modal close
+            document.getElementById('closeModal').addEventListener('click', function() {
+                document.getElementById('detailModal').style.display = 'none';
+            });
+
+            document.getElementById('detailModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.style.display = 'none';
+                }
+            });
+        });
+
+        // ====== AUTHENTICATION ======
+        function showAuth() {
+            document.getElementById('authModal').style.display = 'flex';
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        function showApp() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            
+            updateUserUI();
+            updateStats();
+            loadUserProgress();
+        }
+
+        function setupAuthListeners() {
+            // Auth tabs
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.getElementById('loginForm').classList.toggle('hidden', tabId !== 'login');
+                    document.getElementById('registerForm').classList.toggle('hidden', tabId !== 'register');
+                });
+            });
+
+            // Switch between forms
+            document.getElementById('switchToRegister').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('[data-tab="register"]').click();
+            });
+
+            document.getElementById('switchToLogin').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('[data-tab="login"]').click();
+            });
+
+            // Login form
+            document.getElementById('loginFormData').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+
+                const users = JSON.parse(localStorage.getItem('learnSphereUsers') || '[]');
+                const user = users.find(u => u.username === username && u.password === password);
+
+                if (user) {
+                    currentUser = user;
+                    localStorage.setItem('learnSphereUser', JSON.stringify(user));
+                    loadUserProgress();
+                    showApp();
+                    showNotification('Welcome back, ' + user.name + '!');
+                } else {
+                    alert('Invalid username or password. Try "demo" / "demo" for testing.');
+                }
+            });
+
+            // Register form
+            document.getElementById('registerFormData').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('registerName').value;
+                const username = document.getElementById('registerUsername').value;
+                const password = document.getElementById('registerPassword').value;
+
+                const users = JSON.parse(localStorage.getItem('learnSphereUsers') || '[]');
+                if (users.some(u => u.username === username)) {
+                    alert('Username already exists!');
+                    return;
+                }
+
+                const newUser = {
+                    id: Date.now(),
+                    name,
+                    username,
+                    password,
+                    joined: new Date().toLocaleDateString()
+                };
+
+                users.push(newUser);
+                localStorage.setItem('learnSphereUsers', JSON.stringify(users));
+                
+                currentUser = newUser;
+                localStorage.setItem('learnSphereUser', JSON.stringify(newUser));
+                loadUserProgress();
+                showApp();
+                showNotification('Account created! Welcome to LearnSphere!');
+            });
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('learnSphereUser');
+            showAuth();
+            showNotification('Logged out successfully');
+        }
+
+        // ====== NAVIGATION ======
+        function setupNavigation() {
+            // Bottom nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.dataset.section;
+                    
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    document.querySelectorAll('.content-section').forEach(sec => {
+                        sec.classList.remove('active');
+                    });
+                    document.getElementById(section + 'Section').classList.add('active');
+                    
+                    // Load content for section
+                    if (section === 'math') {
+                        loadMathTricks();
+                    } else if (section === 'physics') {
+                        loadPhysicsEquations();
+                    } else if (section === 'practice') {
+                        loadPracticeProblems();
+                    }
+                });
+            });
+
+            // Quick links
+            document.querySelectorAll('.quick-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.dataset.section;
+                    
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    document.querySelector(`[data-section="${section}"]`).classList.add('active');
+                    
+                    document.querySelectorAll('.content-section').forEach(sec => {
+                        sec.classList.remove('active');
+                    });
+                    if (section === 'conjectures' || section === 'paradoxes') {
+                        document.getElementById('mathSection').classList.add('active');
+                        setTimeout(() => {
+                            document.querySelector(`[data-subtab="${section}"]`).click();
+                        }, 100);
+                    } else {
+                        document.getElementById(section + 'Section').classList.add('active');
+                    }
+                });
+            });
+
+            // Subject tabs
+            document.querySelectorAll('.subject-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const subtab = this.dataset.subtab;
+                    const parentId = this.closest('.content-section').id;
+                    
+                    document.querySelectorAll('.subject-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    if (parentId === 'mathSection') {
+                        document.querySelectorAll('.content-subsection').forEach(sub => sub.style.display = 'none');
+                        document.getElementById('math' + capitalize(subtab) + 'Content').style.display = 'block';
+                        
+                        if (subtab === 'conjectures') loadMathConjectures();
+                        else if (subtab === 'paradoxes') loadMathParadoxes();
+                    } else if (parentId === 'physicsSection') {
+                        document.querySelectorAll('.content-subsection').forEach(sub => sub.style.display = 'none');
+                        document.getElementById('physics' + capitalize(subtab) + 'Content').style.display = 'block';
+                        
+                        if (subtab === 'theories') loadPhysicsTheories();
+                        else if (subtab === 'concepts') loadPhysicsConcepts();
+                    }
+                });
+            });
+        }
+
+      // ====== UPDATE THE LOADING FUNCTION ======
+      function loadMathTricks() {
+      const grid = document.getElementById('mathTricksGrid');
+      if (!grid) return;
+      
+      // First, show the categories view (as in the image)
+      let html = `
+      <div class="content-card" style="text-align: center; padding: 2rem;">
+      <h2 style="color: #2c5aa0; margin-bottom: 1.5rem;">Math Tricks Categories</h2>
+      <p style="color: #666; margin-bottom: 2rem;">Click on any category to view its tricks</p>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+      <!-- Categories will be added here -->
+      </div>
+      </div>
+      `;
+      
+      grid.innerHTML = html;
+      
+      // Now load the categories in the correct order
+      const categories = [
+      { id: 'addition', name: 'Addition Tricks', count: mathTricks.addition.length, icon: 'plus' },
+      { id: 'subtraction', name: 'Subtraction Tricks', count: mathTricks.subtraction.length, icon: 'minus' },
+      { id: 'multiplication', name: 'Multiplication Tricks', count: mathTricks.multiplication.length, icon: 'multiply' },
+      { id: 'division', name: 'Division Tricks', count: mathTricks.division.length, icon: 'divide' },
+      { id: 'percentages', name: 'Percentages & Fractions', count: mathTricks.percentages.length, icon: 'percent' },
+      { id: 'squaring', name: 'Squaring & Powers', count: mathTricks.squaring.length, icon: 'square' },
+      { id: 'bonus', name: 'Bonus Tricks', count: mathTricks.bonus.length, icon: 'bonus' }
+      ];
+      
+      const container = grid.querySelector('div > div');
+      categories.forEach(category => {
+      container.innerHTML += `
+      <div class="category-card" onclick="loadTricksByCategory('${category.id}')" 
+      style="background: white; border-radius: 15px; padding: 1.5rem; text-align: center; cursor: pointer; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); transition: all 0.3s ease;
+      border-top: 4px solid #2c5aa0;">
+      <div style="font-size: 2rem; margin-bottom: 0.5rem; color: #2c5aa0;">
+      <span class="icon-${category.icon}"></span>
+      </div>
+      <h3 style="color: #2c5aa0; margin-bottom: 0.5rem;">${category.name}</h3>
+      <div style="background: #f0f7ff; padding: 0.5rem 1rem; border-radius: 20px; display: inline-block;">
+      <span style="color: #2c5aa0; font-weight: 700; font-size: 1.2rem;">${category.count}</span>
+      <span style="color: #666; margin-left: 0.5rem;">tricks</span>
+      </div>
+      <div style="margin-top: 1rem; color: #2c5aa0; font-size: 0.9rem; font-weight: 600;">
+      Click to view →
+      </div>
+      </div>
+      `;
+      });
+      }
+      
+      // ====== ADD NEW FUNCTION TO LOAD TRICKS BY CATEGORY ======
+      function loadTricksByCategory(categoryId) {
+      const grid = document.getElementById('mathTricksGrid');
+      if (!grid) return;
+      
+      const categoryMap = {
+      'addition': { name: 'Addition Tricks', tricks: mathTricks.addition },
+      'subtraction': { name: 'Subtraction Tricks', tricks: mathTricks.subtraction },
+      'multiplication': { name: 'Multiplication Tricks', tricks: mathTricks.multiplication },
+      'division': { name: 'Division Tricks', tricks: mathTricks.division },
+      'percentages': { name: 'Percentages & Fractions', tricks: mathTricks.percentages },
+      'squaring': { name: 'Squaring & Powers', tricks: mathTricks.squaring },
+      'bonus': { name: 'Bonus Tricks', tricks: mathTricks.bonus }
+      };
+      
+      const category = categoryMap[categoryId];
+      if (!category) return;
+      
+      let html = `
+      <div style="margin-bottom: 1.5rem;">
+      <button onclick="loadMathTricks()" style="background: none; border: none; color: #2c5aa0; 
+      font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+      <span class="icon-arrow-left"></span> Back to Categories
+      </button>
+      </div>
+      
+      <div class="content-card" style="margin-bottom: 1.5rem;">
+      <h2 style="color: #2c5aa0; margin-bottom: 0.5rem;">${category.name}</h2>
+      <p style="color: #666;">${category.tricks.length} tricks to master</p>
+      </div>
+      
+      <div class="content-grid" style="grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));">
+      `;
+      
+      category.tricks.forEach(trick => {
+      html += `
+      <div class="content-card">
+      <div class="card-title">${trick.title}</div>
+      <div class="card-difficulty difficulty-${trick.difficulty}">
+      ${trick.difficulty.charAt(0).toUpperCase() + trick.difficulty.slice(1)}
+      </div>
+      <div class="card-description">${trick.description}</div>
+      <div class="card-example">Example: ${trick.example}</div>
+      <div class="card-actions">
+      <button class="card-btn view-btn" onclick="viewMathTrick('${categoryId}', '${trick.id}')">View</button>
+      <button class="card-btn practice-btn" onclick="practiceMathTrick('${categoryId}', '${trick.id}')">Practice</button>
+      </div>
+      </div>
+      `;
+      });
+      
+      html += '</div>';
+      grid.innerHTML = html;
+      }
+      
+      // ====== UPDATE THE VIEW FUNCTION TO HANDLE CATEGORIES ======
+      function viewMathTrick(categoryId, trickId) {
+      const categoryMap = {
+      'addition': mathTricks.addition,
+      'subtraction': mathTricks.subtraction,
+      'multiplication': mathTricks.multiplication,
+      'division': mathTricks.division,
+      'percentages': mathTricks.percentages,
+      'squaring': mathTricks.squaring,
+      'bonus': mathTricks.bonus
+      };
+      
+      const category = categoryMap[categoryId];
+      if (!category) return;
+      
+      const trick = category.find(t => t.id === trickId);
+      if (!trick) return;
+      
+      const modal = document.getElementById('detailModal');
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+      
+      title.textContent = trick.title;
+      
+      let practiceHTML = '';
+      if (trick.practice && trick.practice.length > 0) {
+      practiceHTML = `
+      <div style="margin-top: 2rem;">
+      <h3 style="color: #2c5aa0;">Practice Problems</h3>
+      ${trick.practice.map((q, i) => `
+      <div style="margin: 1rem 0; padding: 1.2rem; background: #f9f9f9; border-radius: 10px;">
+      <p><strong>${i+1}.</strong> ${q.question}</p>
+      <div style="margin-top: 0.5rem; color: #2c5aa0; font-weight: 600;">
+      Answer: ${q.answer}
+      </div>
+      ${q.explanation ? `<div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
+      Explanation: ${q.explanation}
+      </div>` : ''}
+      </div>
+      `).join('')}
+      </div>
+      `;
+      }
+      
+      body.innerHTML = `
+      <div style="margin-bottom: 1rem;">
+      <span class="card-difficulty difficulty-${trick.difficulty}">
+      ${trick.difficulty.charAt(0).toUpperCase() + trick.difficulty.slice(1)}
+      </span>
+      </div>
+      
+      <div style="margin-bottom: 1.5rem;">
+      <h3 style="color: #2c5aa0;">Description</h3>
+      <p>${trick.description}</p>
+      </div>
+      
+      <div style="margin-bottom: 1.5rem;">
+      <h3 style="color: #2c5aa0;">Detailed Explanation</h3>
+      <p>${trick.explanation}</p>
+      </div>
+      
+      <div style="margin-bottom: 1.5rem;">
+      <h3 style="color: #2c5aa0;">Example</h3>
+      <div style="background: #f0f7ff; padding: 1.2rem; border-radius: 10px; border-left: 4px solid #2c5aa0;">
+      ${trick.example}
+      </div>
+      </div>
+      
+      ${trick.applications ? `
+      <div style="margin-bottom: 1.5rem;">
+      <h3 style="color: #2c5aa0;">Applications</h3>
+      <p>${trick.applications}</p>
+      </div>
+      ` : ''}
+      
+      ${practiceHTML}
+      
+      <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+      <button class="btn btn-primary" onclick="markAsLearned('${trick.id}')" style="flex: 1;">
+      ${learnedTopics.has(trick.id) ? '✓ Learned' : 'Mark as Learned'}
+      </button>
+      <button class="btn" onclick="practiceMathTrick('${categoryId}', '${trick.id}')" style="flex: 1; background: #4caf50; color: white;">
+      Practice Now
+      </button>
+      </div>
+      `;
+      
+      modal.style.display = 'flex';
+      }
+      
+      // ====== UPDATE THE PRACTICE FUNCTION TOO ======
+      function practiceMathTrick(categoryId, trickId) {
+      const categoryMap = {
+      'addition': mathTricks.addition,
+      'subtraction': mathTricks.subtraction,
+      'multiplication': mathTricks.multiplication,
+      'division': mathTricks.division,
+      'percentages': mathTricks.percentages,
+      'squaring': mathTricks.squaring,
+      'bonus': mathTricks.bonus
+      };
+      
+      const category = categoryMap[categoryId];
+      if (!category) return;
+      
+      const trick = category.find(t => t.id === trickId);
+      if (!trick) return;
+      
+      practiceCount++;
+      updateStreak();
+      saveUserProgress();
+      updateStats();
+      
+      const modal = document.getElementById('detailModal');
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+      
+      title.textContent = `Practice: ${trick.title}`;
+      
+      let questionsHTML = '';
+      if (trick.practice && trick.practice.length > 0) {
+      questionsHTML = trick.practice.map((q, i) => `
+      <div style="margin-bottom: 1.5rem; padding: 1.2rem; background: #f8f9fa; border-radius: 10px;">
+      <p><strong>${i+1}.</strong> ${q.question}</p>
+      <input type="text" id="answer${i}" placeholder="Your answer" style="width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 2px solid #ddd; border-radius: 6px;">
+      <button onclick="checkPracticeAnswer('${q.answer.replace(/'/g, "\\'")}', 'answer${i}', this)" style="padding: 0.5rem 1rem; background: #2c5aa0; color: white; border: none; border-radius: 5px; cursor: pointer;">Check Answer</button>
+      <div class="feedback" style="margin-top: 0.5rem; display: none;"></div>
+      </div>
+      `).join('');
+      }
+      
+      body.innerHTML = `
+      <div style="margin-bottom: 1.5rem;">
+      <p>Solve these problems using the trick:</p>
+      </div>
+      
+      ${questionsHTML}
+      
+      <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+      <button class="btn btn-primary" onclick="markAsLearned('${trick.id}')" style="flex: 1;">
+      ${learnedTopics.has(trick.id) ? '✓ Learned' : 'Mark as Learned'}
+      </button>
+      <button class="btn" onclick="viewMathTrick('${categoryId}', '${trick.id}')" style="flex: 1; background: #f0f7ff; color: #2c5aa0;">
+      Review Trick
+      </button>
+      </div>
+      `;
+      
+      modal.style.display = 'flex';
+      }
+      
+      // ====== ADD CSS FOR CATEGORY CARDS ======
+      // Add this to the CSS section in the <style> tag:
+      /*
+      .category-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+      background: #f0f7ff;
+      }
+      */
+
+        function loadMathConjectures() {
+            const list = document.getElementById('mathConjecturesList');
+            let html = '';
+            
+            mathConjectures.forEach(conj => {
+                html += `
+                    <div class="theory-card">
+                        <div class="card-title">${conj.title}</div>
+                        <div class="theory-status status-${conj.status}">
+                            ${conj.status.charAt(0).toUpperCase() + conj.status.slice(1)}
+                        </div>
+                        <div class="theory-content">
+                            <p><strong>Description:</strong> ${conj.description}</p>
+                            <div class="theory-highlight">
+                                <strong>Example:</strong> ${conj.example}
+                            </div>
+                            <p><strong>Explanation:</strong> ${conj.explanation}</p>
+                            <div class="theory-fact">
+                                <strong>Interesting Fact:</strong> ${conj.interestingFact}
+                            </div>
+                            ${conj.implications ? `<p><strong>Implications:</strong> ${conj.implications}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+
+        function loadMathParadoxes() {
+            const list = document.getElementById('mathParadoxesList');
+            let html = '';
+            
+            mathParadoxes.forEach(para => {
+                html += `
+                    <div class="theory-card">
+                        <div class="card-title">${para.title}</div>
+                        <div class="theory-status status-paradox">
+                            Paradox
+                        </div>
+                        <div class="theory-content">
+                            <p><strong>Description:</strong> ${para.description}</p>
+                            <div class="theory-highlight">
+                                <strong>Example:</strong> ${para.example}
+                            </div>
+                            <p><strong>Explanation:</strong> ${para.explanation}</p>
+                            <div class="theory-fact">
+                                <strong>Interesting Fact:</strong> ${para.interestingFact}
+                            </div>
+                            ${para.applications ? `<p><strong>Applications:</strong> ${para.applications}</p>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+
+        function loadPhysicsContent() {
+            loadPhysicsEquations();
+            loadPhysicsTheories();
+            loadPhysicsConcepts();
+        }
+
+        function loadPhysicsEquations() {
+            const grid = document.getElementById('physicsEquationsGrid');
+            let html = '';
+            
+            physicsEquations.forEach(eq => {
+                html += `
+                    <div class="equation-card">
+                        <div class="equation-title">${eq.title}</div>
+                        <div class="equation-formula">${eq.formula}</div>
+                        <div class="equation-explanation">
+                            <p><strong>Explanation:</strong> ${eq.explanation}</p>
+                            ${eq.derivation ? `<p><strong>Derivation:</strong> ${eq.derivation}</p>` : ''}
+                        </div>
+                        <div class="equation-applications">
+                            <strong>Applications:</strong> ${eq.applications}
+                        </div>
+                        ${eq.example ? `<div style="margin-top: 1rem; padding: 1rem; background: #E8F5E9; border-radius: 8px;">
+                            <strong>Example:</strong> ${eq.example}
+                        </div>` : ''}
+                    </div>
+                `;
+            });
+            
+            if (grid) grid.innerHTML = html;
+        }
+
+        function loadPhysicsTheories() {
+            const list = document.getElementById('physicsTheoriesList');
+            if (!list) return;
+            
+            let html = '';
+            
+            physicsTheories.forEach(theory => {
+                html += `
+                    <div class="theory-card">
+                        <div class="card-title">${theory.title}</div>
+                        <div class="card-subtitle">${theory.type}</div>
+                        <div class="theory-content">
+                            <p><strong>Explanation:</strong> ${theory.explanation}</p>
+                            <p><strong>Key Concepts:</strong> ${theory.keyConcepts}</p>
+                            <p><strong>Evidence:</strong> ${theory.evidence}</p>
+                            <p><strong>Implications:</strong> ${theory.implications}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+
+        function loadPhysicsConcepts() {
+            const list = document.getElementById('physicsConceptsList');
+            if (!list) return;
+            
+            let html = '';
+            
+            physicsConcepts.forEach(concept => {
+                html += `
+                    <div class="content-card">
+                        <div class="card-title">${concept.title}</div>
+                        <div class="card-description">${concept.explanation}</div>
+                        ${concept.example ? `<div class="card-example">Example: ${concept.example}</div>` : ''}
+                        ${concept.implications ? `<div style="padding: 1rem; background: #FFF3E0; border-radius: 8px; margin-top: 1rem;">
+                            <strong>Implications:</strong> ${concept.implications}
+                        </div>` : ''}
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+
+        function loadPracticeProblems() {
+            const content = document.getElementById('practiceContent');
+            if (!content) return;
+            
+            let html = `
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #2c5aa0;">Practice Area</h3>
+                    <p>Select a category to practice:</p>
+                </div>
+                
+                <div class="quick-links">
+                    <a href="#" class="quick-link" onclick="loadMathPractice()">
+                        <div class="quick-link-icon icon-calculator"></div>
+                        <div>
+                            <h3 style="font-size: 1.1rem;">Math Practice</h3>
+                            <p style="font-size: 0.9rem; color: #666;">Tricky problems & solutions</p>
+                        </div>
+                    </a>
+                    <a href="#" class="quick-link" onclick="loadPhysicsPractice()">
+                        <div class="quick-link-icon icon-atom"></div>
+                        <div>
+                            <h3 style="font-size: 1.1rem;">Physics Practice</h3>
+                            <p style="font-size: 0.9rem; color: #666;">Equation applications</p>
+                        </div>
+                    </a>
+                </div>
+                
+                <div id="practiceProblems" style="margin-top: 2rem;">
+                    <!-- Practice problems will be loaded here -->
+                </div>
+            `;
+            
+            content.innerHTML = html;
+        }
+
+        // ====== VIEW FUNCTIONS ======
+        function viewMathTrick(category, trickId) {
+            const trick = mathTricks[category].find(t => t.id === trickId);
+            if (!trick) return;
+
+            const modal = document.getElementById('detailModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+
+            title.textContent = trick.title;
+            
+            let practiceHTML = '';
+            if (trick.practice && trick.practice.length > 0) {
+                practiceHTML = `
+                    <div style="margin-top: 2rem;">
+                        <h3 style="color: #2c5aa0;">Practice Problems</h3>
+                        ${trick.practice.map((q, i) => `
+                            <div style="margin: 1rem 0; padding: 1.2rem; background: #f9f9f9; border-radius: 10px;">
+                                <p><strong>${i+1}.</strong> ${q.question}</p>
+                                <div style="margin-top: 0.5rem; color: #2c5aa0; font-weight: 600;">
+                                    Answer: ${q.answer}
+                                </div>
+                                ${q.explanation ? `<div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
+                                    Explanation: ${q.explanation}
+                                </div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            body.innerHTML = `
+                <div style="margin-bottom: 1rem;">
+                    <span class="card-difficulty difficulty-${trick.difficulty}">
+                        ${trick.difficulty.charAt(0).toUpperCase() + trick.difficulty.slice(1)}
+                    </span>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #2c5aa0;">Description</h3>
+                    <p>${trick.description}</p>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #2c5aa0;">Detailed Explanation</h3>
+                    <p>${trick.explanation}</p>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #2c5aa0;">Example</h3>
+                    <div style="background: #f0f7ff; padding: 1.2rem; border-radius: 10px; border-left: 4px solid #2c5aa0;">
+                        ${trick.example}
+                    </div>
+                </div>
+                
+                ${trick.applications ? `
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #2c5aa0;">Applications</h3>
+                    <p>${trick.applications}</p>
+                </div>
+                ` : ''}
+                
+                ${practiceHTML}
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="markAsLearned('${trick.id}')" style="flex: 1;">
+                        ${learnedTopics.has(trick.id) ? '✓ Learned' : 'Mark as Learned'}
+                    </button>
+                    <button class="btn" onclick="practiceMathTrick('${category}', '${trick.id}')" style="flex: 1; background: #4caf50; color: white;">
+                        Practice Now
+                    </button>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function practiceMathTrick(category, trickId) {
+            const trick = mathTricks[category].find(t => t.id === trickId);
+            if (!trick) return;
+
+            practiceCount++;
+            updateStreak();
+            saveUserProgress();
+            updateStats();
+
+            const modal = document.getElementById('detailModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+
+            title.textContent = `Practice: ${trick.title}`;
+
+            let questionsHTML = '';
+            if (trick.practice && trick.practice.length > 0) {
+                questionsHTML = trick.practice.map((q, i) => `
+                    <div style="margin-bottom: 1.5rem; padding: 1.2rem; background: #f8f9fa; border-radius: 10px;">
+                        <p><strong>${i+1}.</strong> ${q.question}</p>
+                        <input type="text" id="answer${i}" placeholder="Your answer" style="width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 2px solid #ddd; border-radius: 6px;">
+                        <button onclick="checkPracticeAnswer('${q.answer.replace(/'/g, "\\'")}', 'answer${i}', this)" style="padding: 0.5rem 1rem; background: #2c5aa0; color: white; border: none; border-radius: 5px; cursor: pointer;">Check Answer</button>
+                        <div class="feedback" style="margin-top: 0.5rem; display: none;"></div>
+                    </div>
+                `).join('');
+            }
+
+            body.innerHTML = `
+                <div style="margin-bottom: 1.5rem;">
+                    <p>Solve these problems using the trick:</p>
+                </div>
+                
+                ${questionsHTML}
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="markAsLearned('${trick.id}')" style="flex: 1;">
+                        ${learnedTopics.has(trick.id) ? '✓ Learned' : 'Mark as Learned'}
+                    </button>
+                    <button class="btn" onclick="viewMathTrick('${category}', '${trick.id}')" style="flex: 1; background: #f0f7ff; color: #2c5aa0;">
+                        Review Trick
+                    </button>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function checkPracticeAnswer(correct, inputId, button) {
+            const input = document.getElementById(inputId);
+            const feedback = button.nextElementSibling;
+            const userAnswer = input.value.trim();
+
+            if (userAnswer === correct) {
+                feedback.innerHTML = '<span style="color: #4CAF50; font-weight: 600;">✓ Correct! Well done!</span>';
+                feedback.style.display = 'block';
+                input.style.borderColor = '#4CAF50';
+            } else {
+                feedback.innerHTML = `<span style="color: #F44336;">✗ Try again. The correct answer is: ${correct}</span>`;
+                feedback.style.display = 'block';
+                input.style.borderColor = '#F44336';
+            }
+        }
+
+        // ====== USER FUNCTIONS ======
+        function loadUserProgress() {
+            if (!currentUser) return;
+            
+            const progress = JSON.parse(localStorage.getItem(`progress_${currentUser.id}`) || '{}');
+            learnedTopics = new Set(progress.learnedTopics || []);
+            practiceCount = progress.practiceCount || 0;
+            dayStreak = progress.dayStreak || 0;
+            lastPracticeDate = progress.lastPracticeDate;
+            
+            updateStreak();
+        }
+
+        function saveUserProgress() {
+            if (!currentUser) return;
+            
+            const progress = {
+                learnedTopics: Array.from(learnedTopics),
+                practiceCount,
+                dayStreak,
+                lastPracticeDate
+            };
+            
+            localStorage.setItem(`progress_${currentUser.id}`, JSON.stringify(progress));
+        }
+
+        function updateStreak() {
+            if (!lastPracticeDate) {
+                lastPracticeDate = new Date().toISOString();
+                dayStreak = 1;
+                return;
+            }
+            
+            const today = new Date().toDateString();
+            const lastDate = new Date(lastPracticeDate).toDateString();
+            
+            if (today === lastDate) return;
+            
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            
+            if (yesterday.toDateString() === lastDate) {
+                dayStreak++;
+            } else {
+                dayStreak = 1;
+            }
+            
+            lastPracticeDate = new Date().toISOString();
+        }
+
+        function updateUserUI() {
+            if (!currentUser) return;
+            
+            document.getElementById('userAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('profileAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileUsername').textContent = `@${currentUser.username}`;
+            document.getElementById('joinDate').textContent = currentUser.joined;
+        }
+
+        function updateStats() {
+            // Calculate total topics
+            let mathCount = 0;
+            for (const category in mathTricks) {
+                mathCount += mathTricks[category].length;
+            }
+            const totalTopics = mathCount + physicsEquations.length + physicsTheories.length + physicsConcepts.length;
+            
+            const learned = learnedTopics.size;
+            const mathPercent = mathCount > 0 ? Math.round((learned / mathCount) * 100) : 0;
+            const physicsPercent = physicsEquations.length > 0 ? Math.round((learned / physicsEquations.length) * 100) : 0;
+            const accuracyPercent = practiceCount > 0 ? Math.min(70 + (practiceCount * 2), 95) : 0;
+            
+            // Update stats
+            document.getElementById('totalTopics').textContent = totalTopics;
+            document.getElementById('learnedCount').textContent = learned;
+            document.getElementById('practiceCount').textContent = practiceCount;
+            
+            // Update progress bars
+            document.getElementById('mathProgress').textContent = mathPercent + '%';
+            document.getElementById('mathProgressBar').style.width = mathPercent + '%';
+            document.getElementById('physicsProgress').textContent = physicsPercent + '%';
+            document.getElementById('physicsProgressBar').style.width = physicsPercent + '%';
+            document.getElementById('accuracyProgress').textContent = accuracyPercent + '%';
+            document.getElementById('accuracyProgressBar').style.width = accuracyPercent + '%';
+        }
+
+        function markAsLearned(topicId) {
+            if (!currentUser) {
+                showNotification('Please login to save progress');
+                return;
+            }
+            
+            if (learnedTopics.has(topicId)) {
+                learnedTopics.delete(topicId);
+                showNotification('Topic unmarked');
+            } else {
+                learnedTopics.add(topicId);
+                practiceCount++;
+                showNotification('Topic marked as learned!');
+            }
+            
+            saveUserProgress();
+            updateStats();
+        }
+
+        // ====== UTILITY FUNCTIONS ======
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #2c5aa0;
+                color: white;
+                padding: 1rem 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+                font-weight: 600;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function showDailyChallenge() {
+            const modal = document.getElementById('detailModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+
+            title.textContent = 'Daily Challenge';
+            body.innerHTML = `
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: #2c5aa0;">Multiply by 11 Challenge</h3>
+                    <p>Using the trick for multiplying two-digit numbers by 11, solve: 76 × 11</p>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <input type="text" id="challengeAnswer" placeholder="Your answer" style="width: 100%; padding: 1rem; border: 2px solid #ddd; border-radius: 8px;">
+                </div>
+                
+                <button onclick="checkChallengeAnswer()" style="width: 100%; padding: 1rem; background: #2c5aa0; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                    Submit Answer
+                </button>
+                
+                <div id="challengeFeedback" style="margin-top: 1rem; display: none;"></div>
+                
+                <div style="margin-top: 2rem; padding: 1rem; background: #f0f7ff; border-radius: 8px; display: none;" id="solution">
+                    <h4 style="color: #2c5aa0;">Solution:</h4>
+                    <p>For 76 × 11:</p>
+                    <p>1. Add digits: 7 + 6 = 13</p>
+                    <p>2. Place sum between digits: 7(13)6</p>
+                    <p>3. Carry over: 7 becomes 8, middle becomes 3</p>
+                    <p>4. Result: 836</p>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function checkChallengeAnswer() {
+            const answer = document.getElementById('challengeAnswer').value.trim();
+            const feedback = document.getElementById('challengeFeedback');
+            const solution = document.getElementById('solution');
+            
+            if (answer === '836') {
+                feedback.innerHTML = '<span style="color: #4CAF50; font-weight: 600;">✓ Correct! Excellent work!</span>';
+                feedback.style.display = 'block';
+                practiceCount++;
+                saveUserProgress();
+                updateStats();
+                showNotification('Challenge completed! +1 practice session');
+            } else {
+                feedback.innerHTML = '<span style="color: #F44336;">Not quite. Try again or view the solution.</span>';
+                feedback.style.display = 'block';
+                solution.style.display = 'block';
+            }
+        }
+
+        function searchMath() {
+            const query = prompt("Search for math topics:");
+            if (query) {
+                showNotification(`Searching for: ${query}`);
+                // In a real implementation, this would filter content
+            }
+        }
+
+        function loadMathPractice() {
+            const container = document.getElementById('practiceProblems');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div class="content-card">
+                    <div class="card-title">Math Practice Problems</div>
+                    <div class="card-description">Test your skills with these math problems:</div>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #f0f7ff; border-radius: 8px;">
+                            <p><strong>1.</strong> Using the "Multiply by 11" trick, what is 89 × 11?</p>
+                            <input type="text" id="math1" placeholder="Your answer" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;">
+                            <button onclick="checkMathPractice('math1', '979')" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2c5aa0; color: white; border: none; border-radius: 5px;">Check</button>
+                            <div id="feedback1" style="margin-top: 0.5rem; display: none;"></div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #f0f7ff; border-radius: 8px;">
+                            <p><strong>2.</strong> Using the complement method, what is 1000 - 642?</p>
+                            <input type="text" id="math2" placeholder="Your answer" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;">
+                            <button onclick="checkMathPractice('math2', '358')" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2c5aa0; color: white; border: none; border-radius: 5px;">Check</button>
+                            <div id="feedback2" style="margin-top: 0.5rem; display: none;"></div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #f0f7ff; border-radius: 8px;">
+                            <p><strong>3.</strong> Square 45 using the ending-in-5 trick.</p>
+                            <input type="text" id="math3" placeholder="Your answer" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;">
+                            <button onclick="checkMathPractice('math3', '2025')" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2c5aa0; color: white; border: none; border-radius: 5px;">Check</button>
+                            <div id="feedback3" style="margin-top: 0.5rem; display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkMathPractice(inputId, correctAnswer) {
+            const input = document.getElementById(inputId);
+            const feedbackId = 'feedback' + inputId.slice(-1);
+            const feedback = document.getElementById(feedbackId);
+            const userAnswer = input.value.trim();
+            
+            if (userAnswer === correctAnswer) {
+                feedback.innerHTML = '<span style="color: #4CAF50; font-weight: 600;">✓ Correct!</span>';
+                feedback.style.display = 'block';
+                input.style.borderColor = '#4CAF50';
+            } else {
+                feedback.innerHTML = `<span style="color: #F44336;">✗ Try again. Correct answer: ${correctAnswer}</span>`;
+                feedback.style.display = 'block';
+                input.style.borderColor = '#F44336';
+            }
+        }
+
+        function loadPhysicsPractice() {
+            const container = document.getElementById('practiceProblems');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <div class="content-card">
+                    <div class="card-title">Physics Practice Problems</div>
+                    <div class="card-description">Apply physics equations to solve these problems:</div>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #f0f7ff; border-radius: 8px;">
+                            <p><strong>1.</strong> Using F = ma, what force is needed to accelerate a 5 kg object at 4 m/s²?</p>
+                            <input type="text" id="physics1" placeholder="Your answer" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;">
+                            <button onclick="checkPhysicsPractice('physics1', '20 N')" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2c5aa0; color: white; border: none; border-radius: 5px;">Check</button>
+                            <div id="feedbackP1" style="margin-top: 0.5rem; display: none;"></div>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: #f0f7ff; border-radius: 8px;">
+                            <p><strong>2.</strong> Using E = mc², how much energy is in 0.5 kg of mass? (c = 3×10⁸ m/s)</p>
+                            <input type="text" id="physics2" placeholder="Your answer" style="width: 100%; padding: 0.5rem; margin-top: 0.5rem;">
+                            <button onclick="checkPhysicsPractice('physics2', '4.5×10¹⁶ J')" style="margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2c5aa0; color: white; border: none; border-radius: 5px;">Check</button>
+                            <div id="feedbackP2" style="margin-top: 0.5rem; display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkPhysicsPractice(inputId, correctAnswer) {
+            const input = document.getElementById(inputId);
+            const feedbackId = 'feedbackP' + inputId.slice(-1);
+            const feedback = document.getElementById(feedbackId);
+            const userAnswer = input.value.trim();
+            
+            // Allow different formats
+            const normalizedUser = userAnswer.toLowerCase().replace(/\s+/g, '');
+            const normalizedCorrect = correctAnswer.toLowerCase().replace(/\s+/g, '');
+            
+            if (normalizedUser === normalizedCorrect || normalizedUser === '4.5e16j' || normalizedUser === '4.5x10^16j') {
+                feedback.innerHTML = '<span style="color: #4CAF50; font-weight: 600;">✓ Correct!</span>';
+                feedback.style.display = 'block';
+                input.style.borderColor = '#4CAF50';
+            } else {
+                feedback.innerHTML = `<span style="color: #F44336;">✗ Try again. Correct answer: ${correctAnswer}</span>`;
+                feedback.style.display = 'block';
+                input.style.borderColor = '#F44336';
+            }
+        }
+    </script>
+</body>
+</html>
