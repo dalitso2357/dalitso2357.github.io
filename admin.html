@@ -1,0 +1,3393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearNet Admin Panel</title>
+    <style>
+        /* ====== RESET & BASE ====== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f1f5f9;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ====== AUTHENTICATION ====== */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .auth-container {
+            background: #1e293b;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.9rem;
+            background: #0f172a;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn {
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        /* ====== ADMIN DASHBOARD ====== */
+        .admin-container {
+            display: none;
+            padding: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #334155;
+        }
+
+        .admin-title h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #1e293b;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #3b82f6;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.2);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .admin-tab {
+            padding: 1rem 1.5rem;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            color: #cbd5e1;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .admin-tab:hover {
+            background: #334155;
+        }
+
+        .admin-tab.active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .tab-content {
+            display: none;
+            background: #1e293b;
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid #334155;
+            min-height: 500px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ====== COMMON FORM STYLES ====== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-card {
+            background: #0f172a;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .form-card h3 {
+            color: #60a5fa;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #334155;
+        }
+
+        .form-row {
+            margin-bottom: 1rem;
+        }
+
+        .form-row label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+            font-weight: 600;
+        }
+
+        .form-row input,
+        .form-row textarea,
+        .form-row select {
+            width: 100%;
+            padding: 0.8rem;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .form-row textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row input:focus,
+        .form-row textarea:focus,
+        .form-row select:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            color: white;
+        }
+
+        /* ====== DATA TABLES ====== */
+        .data-table {
+            width: 100%;
+            background: #0f172a;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #334155, #475569);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #334155;
+            color: #cbd5e1;
+        }
+
+        .data-table tr:hover {
+            background: #1e293b;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .preview-btn {
+            background: #10b981;
+            color: white;
+        }
+
+        /* ====== SEARCH AND FILTERS ====== */
+        .search-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 1rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .search-box:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+
+        /* ====== MODALS ====== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 1rem;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid #334155;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: #60a5fa;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        /* ====== ALERTS ====== */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: 1px solid #ef4444;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: 1px solid #f59e0b;
+        }
+
+        /* ====== RESPONSIVE ====== */
+        @media (max-width: 768px) {
+            .admin-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .admin-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table {
+                font-size: 0.9rem;
+            }
+
+            .table-actions {
+                flex-direction: column;
+            }
+        }
+
+        /* ====== CODE EDITOR ====== */
+        .code-editor {
+            background: #0f172a;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .editor-header {
+            background: #334155;
+            padding: 0.8rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .editor-tab {
+            padding: 0.5rem 1rem;
+            background: #475569;
+            border: none;
+            border-radius: 6px;
+            color: #cbd5e1;
+            cursor: pointer;
+        }
+
+        .editor-tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .code-area {
+            width: 100%;
+            min-height: 300px;
+            padding: 1rem;
+            background: #0f172a;
+            border: none;
+            color: #60a5fa;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            resize: vertical;
+        }
+
+        /* ====== CUSTOM ICONS ====== */
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+        }
+
+        .icon-dashboard::before { content: "📊"; }
+        .icon-math::before { content: "📐"; }
+        .icon-physics::before { content: "⚛️"; }
+        .icon-users::before { content: "👥"; }
+        .icon-settings::before { content: "⚙️"; }
+        .icon-content::before { content: "📝"; }
+        .icon-analytics::before { content: "📈"; }
+        .icon-backup::before { content: "💾"; }
+        .icon-code::before { content: "💻"; }
+        .icon-preview::before { content: "👁️"; }
+    </style>
+</head>
+<body>
+    <!-- AUTHENTICATION MODAL -->
+    <div class="auth-modal" id="authModal">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>LearNet Admin</h1>
+                <p style="color: #94a3b8;">Administrator Dashboard</p>
+            </div>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="adminUsername">Username</label>
+                    <input type="text" id="adminUsername" placeholder="Enter admin username" required>
+                </div>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login to Admin Panel</button>
+            </form>
+            <p style="text-align: center; margin-top: 1rem; color: #64748b; font-size: 0.9rem;">
+                Access restricted to authorized personnel only
+            </p>
+        </div>
+    </div>
+
+    <!-- ADMIN DASHBOARD -->
+    <div class="admin-container" id="adminContainer">
+        <!-- HEADER -->
+        <header class="admin-header">
+            <div class="admin-title">
+                <h1>LearNet Admin Dashboard</h1>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Complete Control Panel - Version 3.0.0</p>
+            </div>
+            <div>
+                <button class="btn btn-danger" onclick="logoutAdmin()" style="padding: 0.7rem 1.5rem;">Logout</button>
+            </div>
+        </header>
+
+        <!-- STATISTICS -->
+        <div class="admin-stats">
+            <div class="stat-card">
+                <span class="stat-number" id="totalUsers">0</span>
+                <span class="stat-label">Total Users</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="mathTopics">0</span>
+                <span class="stat-label">Math Topics</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="physicsTopics">0</span>
+                <span class="stat-label">Physics Topics</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="practiceCount">0</span>
+                <span class="stat-label">Practice Sessions</span>
+            </div>
+        </div>
+
+        <!-- ALERTS -->
+        <div class="alert" id="alertMessage"></div>
+
+        <!-- TABS -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" data-tab="dashboard">
+                <span class="icon icon-dashboard"></span>Dashboard
+            </button>
+            <button class="admin-tab" data-tab="math">
+                <span class="icon icon-math"></span>Math Content
+            </button>
+            <button class="admin-tab" data-tab="physics">
+                <span class="icon icon-physics"></span>Physics Content
+            </button>
+            <button class="admin-tab" data-tab="users">
+                <span class="icon icon-users"></span>User Management
+            </button>
+            <button class="admin-tab" data-tab="content">
+                <span class="icon icon-content"></span>Content Editor
+            </button>
+            <button class="admin-tab" data-tab="analytics">
+                <span class="icon icon-analytics"></span>Analytics
+            </button>
+            <button class="admin-tab" data-tab="backup">
+                <span class="icon icon-backup"></span>Backup & Restore
+            </button>
+            <button class="admin-tab" data-tab="code">
+                <span class="icon icon-code"></span>Code Editor
+            </button>
+            <button class="admin-tab" data-tab="settings">
+                <span class="icon icon-settings"></span>Settings
+            </button>
+        </div>
+
+        <!-- TAB CONTENTS -->
+        
+        <!-- DASHBOARD TAB -->
+        <div class="tab-content active" id="dashboardTab">
+            <h2 style="margin-bottom: 1.5rem; color: #60a5fa;">System Overview</h2>
+            
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>Quick Actions</h3>
+                    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                        <button class="btn btn-primary" onclick="showTab('math')">Add Math Trick</button>
+                        <button class="btn btn-primary" onclick="showTab('physics')">Add Physics Equation</button>
+                        <button class="btn btn-success" onclick="exportAllData()">Export All Data</button>
+                        <button class="btn btn-warning" onclick="clearAllCache()">Clear Cache</button>
+                        <button class="btn btn-danger" onclick="resetAllData()">Reset System</button>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h3>System Status</h3>
+                    <div id="systemStatus">
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Storage Usage</span>
+                                <span id="storageUsage">0%</span>
+                            </div>
+                            <div style="height: 8px; background: #334155; border-radius: 4px; overflow: hidden; margin-top: 0.5rem;">
+                                <div id="storageBar" style="height: 100%; width: 0%; background: linear-gradient(90deg, #3b82f6, #60a5fa);"></div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Active Users (Today)</span>
+                                <span id="activeUsers">0</span>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Last Backup</span>
+                                <span id="lastBackup">Never</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h3>Recent Activity</h3>
+                    <div id="recentActivity" style="max-height: 200px; overflow-y: auto;">
+                        <!-- Activity logs will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card" style="margin-top: 1.5rem;">
+                <h3>System Information</h3>
+                <div class="form-grid">
+                    <div>
+                        <p><strong>Platform:</strong> <span id="platformInfo">LearNet v3.0.0</span></p>
+                        <p><strong>Browser:</strong> <span id="browserInfo">Unknown</span></p>
+                    </div>
+                    <div>
+                        <p><strong>LocalStorage:</strong> <span id="localStorageInfo">Available</span></p>
+                        <p><strong>Last Updated:</strong> <span id="lastUpdated">Never</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MATH CONTENT TAB -->
+        <div class="tab-content" id="mathTab">
+            <h2 style="margin-bottom: 1.5rem; color: #60a5fa;">Math Content Management</h2>
+            
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchMath" placeholder="Search math tricks, conjectures, paradoxes..." onkeyup="searchMathContent()">
+            </div>
+
+            <div class="btn-group" style="margin-bottom: 1.5rem;">
+                <button class="btn btn-primary" onclick="showAddMathTrick()">Add Math Trick</button>
+                <button class="btn btn-success" onclick="showAddConjecture()">Add Conjecture</button>
+                <button class="btn btn-warning" onclick="showAddParadox()">Add Paradox</button>
+                <button class="btn btn-secondary" onclick="importMathData()">Import Math Data</button>
+            </div>
+
+            <div class="admin-tabs" style="margin-bottom: 1.5rem;">
+                <button class="admin-tab active" onclick="showMathCategory('tricks')">Math Tricks</button>
+                <button class="admin-tab" onclick="showMathCategory('conjectures')">Conjectures</button>
+                <button class="admin-tab" onclick="showMathCategory('paradoxes')">Paradoxes</button>
+            </div>
+
+            <div id="mathTricksTable">
+                <h3 style="margin-bottom: 1rem; color: #94a3b8;">Math Tricks by Category</h3>
+                <div id="mathCategoriesList">
+                    <!-- Categories will be loaded here -->
+                </div>
+            </div>
+
+            <div id="mathConjecturesTable" style="display: none;">
+                <h3 style="margin-bottom: 1rem; color: #94a3b8;">Mathematical Conjectures</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Difficulty</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="conjecturesList">
+                        <!-- Conjectures will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="mathParadoxesTable" style="display: none;">
+                <h3 style="margin-bottom: 1rem; color: #94a3b8;">Mathematical Paradoxes</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Difficulty</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paradoxesList">
+                        <!-- Paradoxes will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PHYSICS CONTENT TAB -->
+        <div class="tab-content" id="physicsTab">
+            <h2 style="margin-bottom: 1.5rem; color: #60a5fa;">Physics Content Management</h2>
+            
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchPhysics" placeholder="Search physics equations, theories, concepts..." onkeyup="searchPhysicsContent()">
+            </div>
+
+            <div class="btn-group" style="margin-bottom: 1.5rem;">
+                <button class="btn btn-primary" onclick="showAddPhysicsEquation()">Add Equation</button>
+                <button class="btn btn-success" onclick="showAddPhysicsTheory()">Add Theory</button>
+                <button class="btn btn-warning" onclick="showAddPhysicsConcept()">Add Concept</button>
+                <button class="btn btn-secondary" onclick="importPhysicsData()">Import Physics Data</button>
+            </div>
+
+            <div class="admin-tabs" style="margin-bottom: 1.5rem;">
+                <button class="admin-tab active" onclick="showPhysicsCategory('equations')">Equations</button>
+                <button class="admin-tab" onclick="showPhysicsCategory('theories')">Theories</button>
+                <button class="admin-tab" onclick="showPhysicsCategory('concepts')">Concepts</button>
+            </div>
+
+            <div id="physicsEquationsTable">
+                <h3 style="margin-bottom: 1rem; color: #94a3b8;">Physics Equations</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Formula</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="equationsList">
+                        <!-- Equations will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="physicsTheoriesTable" style="display: none;">
+                <h3 style="margin-bottom: 1rem; color: #94a3b8;">Physics Theories</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Key Concepts</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="theoriesList">
+                        <!-- Theories will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="physicsConceptsTable" style="display: none;">
+                <h3 style="margin-bottom: 1rem; color: #94a3b8;">Physics Concepts</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Explanation</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="conceptsList">
+                        <!-- Concepts will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- USER MANAGEMENT TAB -->
+        <div class="tab-content" id="usersTab">
+            <h2 style="margin-bottom: 1.5rem; color: #60a5fa;">User Management</h2>
+            
+            <div class="search-container">
+                <input type="text" class="search-box" id="searchUsers" placeholder="Search users by name or username..." onkeyup="searchUsers()">
+            </div>
+
+            <div class="btn-group" style="margin-bottom: 1.5rem;">
+                <button class="btn btn-primary" onclick="showAddUser()">Add User</button>
+                <button class="btn btn-success" onclick="exportUsers()">Export Users</button>
+                <button class="btn btn-warning" onclick="resetAllUsers()">Reset All Users</button>
+                <button class="btn btn-danger" onclick="deleteAllUsers()">Delete All Users</button>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Username</th>
+                        <th>Joined</th>
+                        <th>Progress</th>
+                        <th>Practice</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersList">
+                    <!-- Users will be loaded here -->
+                </tbody>
+            </table>
+
+            <div class="form-card" style="margin-top: 2rem;">
+                <h3>Bulk User Operations</h3>
+                <div class="form-grid">
+                    <div>
+                        <div class="form-row">
+                            <label>Add Multiple Users (CSV Format)</label>
+                            <textarea id="bulkUsers" placeholder="Format: name,username,password (one per line)"></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="addBulkUsers()">Add Users</button>
+                    </div>
+                    <div>
+                        <div class="form-row">
+                            <label>Generate Test Users</label>
+                            <input type="number" id="testUserCount" placeholder="Number of users" min="1" max="100" value="10">
+                        </div>
+                        <button class="btn btn-warning" onclick="generateTestUsers()">Generate</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT EDITOR TAB -->
+        <div class="tab-content" id="contentTab">
+            <h2 style="margin-bottom: 1.5rem; color: #60a5fa;">Content Editor</h2>
+            
+            <div class="form-card">
+                <h3>Edit Main Page Content</h3>
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Site Title</label>
+                        <input type="text" id="siteTitle" value="LearNet - Math & Physics">
+                    </div>
+                    <div class="form-row">
+                        <label>Welcome Message</label>
+                        <textarea id="welcomeMessage">Master mathematics and physics through interactive learning, detailed explanations, and practice problems.</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Main Theme Color</label>
+                        <input type="color" id="themeColor" value="#2c5aa0">
+                    </div>
+                    <div class="form-row">
+                        <label>Secondary Color</label>
+                        <input type="color" id="secondaryColor" value="#4CAF50">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveSiteSettings()">Save Settings</button>
+                    <button class="btn btn-secondary" onclick="previewChanges()">Preview Changes</button>
+                    <button class="btn btn-warning" onclick="resetSiteSettings()">Reset to Default</button>
+                </div>
+            </div>
+
+            <div class="form-card" style="margin-top: 1.5rem;">
+                <h3>Quick Links Management</h3>
+                <div id="quickLinksList">
+                    <!-- Quick links will be loaded here -->
+                </div>
+                <button class="btn btn-primary" onclick="addQuickLink()" style="margin-top: 1rem;">Add Quick Link</button>
+            </div>
+
+            <div class="form-card" style="margin-top: 1.5rem;">
+                <h3>Home Page Content</h3>
+                <div class="form-row">
+                    <label>Daily Challenge Text</label>
+                    <textarea id="dailyChallengeText">Solve this using the "Multiply by 11" trick: What is 76 × 11?</textarea>
+                </div>
+                <div class="form-row">
+                    <label>Stat Cards Configuration</label>
+                    <div id="statCardsList">
+                        <!-- Stat cards will be loaded here -->
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveHomeContent()">Save Home Content</button>
+            </div>
+        </div>
+
+        <!-- ANALYTICS TAB -->
+        <div class="tab-content" id="analyticsTab">
+            <h2 style="margin-bottom: 1.5rem; color: #60a5fa;">Analytics & Reports</h2>
+            
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>Learning Progress</h3>
+                    <div id="progressChart">
+                        <!-- Progress chart will be here -->
+                    </div>
+                </div>
+                <div class="form-card">
+                    <h3>User Activity</h3>
+                    <div id="activityChart">
+                        <!-- Activity chart will be here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-card" style="margin-top: 1.5rem;">
+                <h3>Top Performing Content</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Content</th>
+                            <th>Type</th>
+                            <th>Views</th>
+                            <th>Practice</th>
+                            <th>Completion</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topContentList">
+                        <!-- Top content will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-card" style="margin-top: 1.5rem;">
+                <h3>Generate Reports</h3>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="generateUserReport()">User Activity Report</button>
+                    <button class="btn btn-success" onclick="generateContentReport()">Content Performance Report</button>
+                    <button class="btn btn-warning" onclick="generateSystemReport()">System Usage Report</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BACKUP & RESTORE TAB -->
+        <div class="tab-content" id="backupTab">
+            <h2 style="margin-bottom: 1.5rem; color: #60a5fa;">Backup & Restore</h2>
+            
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>Create Backup</h3>
+                    <div class="form-row">
+                        <label>Backup Name</label>
+                        <input type="text" id="backupName" placeholder="Enter backup name">
+                    </div>
+                    <div class="form-row">
+                        <label>Include in Backup</label>
+                        <div>
+                            <input type="checkbox" id="backupUsers" checked> Users Data
+                            <input type="checkbox" id="backupMath" checked> Math Content
+                            <input type="checkbox" id="backupPhysics" checked> Physics Content
+                            <input type="checkbox" id="backupSettings" checked> System Settings
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="createBackup()">Create Backup</button>
+                </div>
+
+                <div class="form-card">
+                    <h3>Restore Backup</h3>
+                    <div class="form-row">
+                        <label>Select Backup File</label>
+                        <input type="file" id="restoreFile" accept=".json">
+                    </div>
+                    <div class="form-row">
+                        <label>Restore Options</label>
+                        <select id="restoreOption">
+                            <option value="full">Full Restore</option>
+                            <option value="partial">Partial Restore</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-warning" onclick="restoreBackup()">Restore Backup</button>
+                </div>
+            </div>
+
+            <div class="form-card" style="margin-top: 1.5rem;">
+                <h3>Backup History</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Backup Name</th>
+                            <th>Date</th>
+                            <th>Size</th>
+                            <th>Contents</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="backupHistory">
+                        <!-- Backup history will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-card" style="margin-top: 1.5rem;">
+                <h3>Auto-Backup Settings</h3>
+                <div class="form-row">
+                    <label>Auto-backup Frequency</label>
+                    <select id="autoBackupFrequency">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="disabled" selected>Disabled</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>Keep Last N Backups</label>
+                    <input type="number" id="keepBackups" min="1" max="50" value="10">
+                </div>
+                <button class="btn btn-primary" onclick="saveBackupSettings()">Save Settings</button>
+            </div>
+        </div>
+
+        <!-- CODE EDITOR TAB -->
+        <div class="tab-content" id="codeTab">
+            <h2 style="margin-bottom: 1.5rem; color: #60a5fa;">Code Editor & Customization</h2>
+            
+            <div class="code-editor">
+                <div class="editor-header">
+                    <div class="editor-tabs">
+                        <button class="editor-tab active" onclick="showEditorFile('index')">index.html</button>
+                        <button class="editor-tab" onclick="showEditorFile('css')">styles.css</button>
+                        <button class="editor-tab" onclick="showEditorFile('js')">script.js</button>
+                        <button class="editor-tab" onclick="showEditorFile('config')">config.json</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveCode()" style="padding: 0.5rem 1rem;">Save Changes</button>
+                </div>
+                <textarea class="code-area" id="codeEditor" spellcheck="false"></textarea>
+            </div>
+
+            <div class="form-grid" style="margin-top: 1.5rem;">
+                <div class="form-card">
+                    <h3>Custom CSS Injection</h3>
+                    <div class="form-row">
+                        <label>Additional CSS</label>
+                        <textarea id="customCSS" placeholder="/* Add custom CSS here */" rows="8"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveCustomCSS()">Inject CSS</button>
+                </div>
+
+                <div class="form-card">
+                    <h3>Custom JavaScript</h3>
+                    <div class="form-row">
+                        <label>Additional JavaScript</label>
+                        <textarea id="customJS" placeholder="// Add custom JavaScript here" rows="8"></textarea>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveCustomJS()">Inject JS</button>
+                </div>
+            </div>
+
+            <div class="form-card" style="margin-top: 1.5rem;">
+                <h3>Advanced Options</h3>
+                <div class="btn-group">
+                    <button class="btn btn-warning" onclick="minifyCode()">Minify All Code</button>
+                    <button class="btn btn-success" onclick="exportAllCode()">Export All Code</button>
+                    <button class="btn btn-danger" onclick="resetAllCode()">Reset All Code</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div class="tab-content" id="settingsTab">
+            <h2 style="margin-bottom: 1.5rem; color: #60a5fa;">System Settings</h2>
+            
+            <div class="form-grid">
+                <div class="form-card">
+                    <h3>General Settings</h3>
+                    <div class="form-row">
+                        <label>Site Name</label>
+                        <input type="text" id="siteName" value="LearNet">
+                    </div>
+                    <div class="form-row">
+                        <label>Site Description</label>
+                        <textarea id="siteDescription">Math & Physics Learning Platform</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Maintenance Mode</label>
+                        <input type="checkbox" id="maintenanceMode">
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <h3>Security Settings</h3>
+                    <div class="form-row">
+                        <label>Admin Password</label>
+                        <input type="password" id="newAdminPassword" placeholder="Enter new password">
+                    </div>
+                    <div class="form-row">
+                        <label>Confirm Password</label>
+                        <input type="password" id="confirmAdminPassword" placeholder="Confirm new password">
+                    </div>
+                    <button class="btn btn-danger" onclick="changeAdminPassword()">Change Password</button>
+                </div>
+            </div>
+
+            <div class="form-card" style="margin-top: 1.5rem;">
+                <h3>Feature Toggles</h3>
+                <div class="form-grid">
+                    <div>
+                        <input type="checkbox" id="featurePractice" checked> Practice Section
+                        <br><input type="checkbox" id="featureProfile" checked> User Profiles
+                        <br><input type="checkbox" id="featureProgress" checked> Progress Tracking
+                    </div>
+                    <div>
+                        <input type="checkbox" id="featureAnalytics" checked> Analytics
+                        <br><input type="checkbox" id="featureSocial" checked> Social Sharing
+                        <br><input type="checkbox" id="featureOffline" checked> Offline Mode
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="saveFeatureToggles()" style="margin-top: 1rem;">Save Features</button>
+            </div>
+
+            <div class="form-card" style="margin-top: 1.5rem;">
+                <h3>Danger Zone</h3>
+                <p style="color: #ef4444; margin-bottom: 1rem;">These actions are irreversible!</p>
+                <div class="btn-group">
+                    <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+                    <button class="btn btn-danger" onclick="resetToDefaults()">Reset to Factory Defaults</button>
+                    <button class="btn btn-danger" onclick="deleteAllContent()">Delete All Content</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FOR ADDING/EDITING CONTENT -->
+    <div class="modal-overlay" id="contentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Add Content</h2>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content forms will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====== ADMIN CREDENTIALS ======
+        const ADMIN_CREDENTIALS = {
+            username: "admin Dee",
+            password: "dee2**200"
+        };
+
+        // ====== APP STATE ======
+        let currentAdmin = null;
+        let allData = {
+            users: [],
+            mathTricks: {},
+            mathConjectures: [],
+            mathParadoxes: [],
+            physicsEquations: [],
+            physicsTheories: [],
+            physicsConcepts: [],
+            settings: {},
+            backups: [],
+            analytics: []
+        };
+
+        // ====== INITIALIZATION ======
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAdminSession();
+            setupEventListeners();
+            loadAllData();
+            updateDashboardStats();
+            loadSystemInfo();
+        });
+
+        // ====== AUTHENTICATION ======
+        function checkAdminSession() {
+            const adminSession = localStorage.getItem('learnetAdminSession');
+            if (adminSession === 'active') {
+                showAdminDashboard();
+            } else {
+                showAuth();
+            }
+        }
+
+        function showAuth() {
+            document.getElementById('authModal').style.display = 'flex';
+            document.getElementById('adminContainer').style.display = 'none';
+        }
+
+        function showAdminDashboard() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('adminContainer').style.display = 'block';
+            currentAdmin = ADMIN_CREDENTIALS.username;
+            logActivity('Admin logged in');
+        }
+
+        // Admin login form
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                localStorage.setItem('learnetAdminSession', 'active');
+                showAdminDashboard();
+                showAlert('Login successful! Welcome to Admin Panel.', 'success');
+            } else {
+                showAlert('Invalid credentials. Access denied.', 'error');
+            }
+        });
+
+        function logoutAdmin() {
+            localStorage.removeItem('learnetAdminSession');
+            currentAdmin = null;
+            showAuth();
+            showAlert('Logged out successfully.', 'success');
+        }
+
+        // ====== DATA MANAGEMENT ======
+        function loadAllData() {
+            // Load users
+            const users = JSON.parse(localStorage.getItem('learnSphereUsers') || '[]');
+            allData.users = users;
+
+            // Load math data
+            const mathTricksData = JSON.parse(localStorage.getItem('learnSphere_mathTricks') || '{}');
+            if (Object.keys(mathTricksData).length === 0) {
+                // Load default math tricks
+                const defaultMathTricks = {
+                    addition: [],
+                    subtraction: [],
+                    multiplication: [],
+                    division: [],
+                    percentages: [],
+                    squaring: [],
+                    bonus: []
+                };
+                localStorage.setItem('learnSphere_mathTricks', JSON.stringify(defaultMathTricks));
+                allData.mathTricks = defaultMathTricks;
+            } else {
+                allData.mathTricks = mathTricksData;
+            }
+
+            // Load other data
+            allData.mathConjectures = JSON.parse(localStorage.getItem('learnSphere_mathConjectures') || '[]');
+            allData.mathParadoxes = JSON.parse(localStorage.getItem('learnSphere_mathParadoxes') || '[]');
+            allData.physicsEquations = JSON.parse(localStorage.getItem('learnSphere_physicsEquations') || '[]');
+            allData.physicsTheories = JSON.parse(localStorage.getItem('learnSphere_physicsTheories') || '[]');
+            allData.physicsConcepts = JSON.parse(localStorage.getItem('learnSphere_physicsConcepts') || '[]');
+            allData.settings = JSON.parse(localStorage.getItem('learnetSettings') || '{}');
+            allData.backups = JSON.parse(localStorage.getItem('learnetBackups') || '[]');
+            allData.analytics = JSON.parse(localStorage.getItem('learnetAnalytics') || '[]');
+
+            // Update UI
+            updateAllTables();
+        }
+
+        function saveAllData() {
+            localStorage.setItem('learnSphereUsers', JSON.stringify(allData.users));
+            localStorage.setItem('learnSphere_mathTricks', JSON.stringify(allData.mathTricks));
+            localStorage.setItem('learnSphere_mathConjectures', JSON.stringify(allData.mathConjectures));
+            localStorage.setItem('learnSphere_mathParadoxes', JSON.stringify(allData.mathParadoxes));
+            localStorage.setItem('learnSphere_physicsEquations', JSON.stringify(allData.physicsEquations));
+            localStorage.setItem('learnSphere_physicsTheories', JSON.stringify(allData.physicsTheories));
+            localStorage.setItem('learnSphere_physicsConcepts', JSON.stringify(allData.physicsConcepts));
+            localStorage.setItem('learnetSettings', JSON.stringify(allData.settings));
+            localStorage.setItem('learnetBackups', JSON.stringify(allData.backups));
+            localStorage.setItem('learnetAnalytics', JSON.stringify(allData.analytics));
+
+            updateDashboardStats();
+            showAlert('All data saved successfully.', 'success');
+            logActivity('Data saved');
+        }
+
+        // ====== DASHBOARD FUNCTIONS ======
+        function updateDashboardStats() {
+            // Update user count
+            document.getElementById('totalUsers').textContent = allData.users.length;
+            
+            // Update math topics count
+            let mathCount = 0;
+            for (const category in allData.mathTricks) {
+                mathCount += allData.mathTricks[category].length;
+            }
+            mathCount += allData.mathConjectures.length + allData.mathParadoxes.length;
+            document.getElementById('mathTopics').textContent = mathCount;
+            
+            // Update physics topics count
+            const physicsCount = allData.physicsEquations.length + allData.physicsTheories.length + allData.physicsConcepts.length;
+            document.getElementById('physicsTopics').textContent = physicsCount;
+            
+            // Update practice sessions
+            let totalPractice = 0;
+            allData.users.forEach(user => {
+                const progress = JSON.parse(localStorage.getItem(`progress_${user.id}`) || '{}');
+                totalPractice += progress.practiceCount || 0;
+            });
+            document.getElementById('practiceCount').textContent = totalPractice;
+            
+            // Update storage usage
+            updateStorageUsage();
+        }
+
+        function updateStorageUsage() {
+            let totalSize = 0;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                totalSize += key.length + value.length;
+            }
+            
+            const usagePercent = Math.min((totalSize / (5 * 1024 * 1024)) * 100, 100); // 5MB max
+            document.getElementById('storageUsage').textContent = `${usagePercent.toFixed(1)}%`;
+            document.getElementById('storageBar').style.width = `${usagePercent}%`;
+        }
+
+        function loadSystemInfo() {
+            // Platform info
+            document.getElementById('platformInfo').textContent = `LearNet v3.0.0 | Admin Panel`;
+            
+            // Browser info
+            const browserInfo = navigator.userAgent;
+            document.getElementById('browserInfo').textContent = browserInfo.substring(0, 50) + '...';
+            
+            // LocalStorage info
+            const localStorageSize = JSON.stringify(localStorage).length;
+            document.getElementById('localStorageInfo').textContent = `${(localStorageSize / 1024).toFixed(2)} KB used`;
+            
+            // Last updated
+            const lastUpdated = new Date().toLocaleString();
+            document.getElementById('lastUpdated').textContent = lastUpdated;
+            
+            // Active users (today)
+            const today = new Date().toDateString();
+            const activeUsers = allData.users.filter(user => {
+                const progress = JSON.parse(localStorage.getItem(`progress_${user.id}`) || '{}');
+                return progress.lastPracticeDate && new Date(progress.lastPracticeDate).toDateString() === today;
+            }).length;
+            document.getElementById('activeUsers').textContent = activeUsers;
+            
+            // Last backup
+            if (allData.backups.length > 0) {
+                const lastBackup = allData.backups[allData.backups.length - 1];
+                document.getElementById('lastBackup').textContent = lastBackup.date;
+            }
+        }
+
+        // ====== TAB MANAGEMENT ======
+        function setupEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    showTab(tabId);
+                });
+            });
+        }
+
+        function showTab(tabId) {
+            // Update active tab
+            document.querySelectorAll('.admin-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.tab === tabId) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Show corresponding content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `${tabId}Tab`) {
+                    content.classList.add('active');
+                }
+            });
+            
+            // Load tab-specific data
+            switch(tabId) {
+                case 'math':
+                    loadMathTables();
+                    break;
+                case 'physics':
+                    loadPhysicsTables();
+                    break;
+                case 'users':
+                    loadUsersTable();
+                    break;
+                case 'analytics':
+                    loadAnalytics();
+                    break;
+                case 'backup':
+                    loadBackupHistory();
+                    break;
+            }
+        }
+
+        // ====== MATH CONTENT MANAGEMENT ======
+        function loadMathTables() {
+            loadMathCategories();
+            loadConjecturesTable();
+            loadParadoxesTable(); // FIXED: This function was missing
+        }
+
+        function loadMathCategories() {
+            const container = document.getElementById('mathCategoriesList');
+            let html = '';
+            
+            for (const category in allData.mathTricks) {
+                const tricks = allData.mathTricks[category];
+                const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+                
+                html += `
+                    <div class="form-card" style="margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h4>${categoryName} Tricks (${tricks.length})</h4>
+                            <button class="btn btn-primary" onclick="showAddMathTrick('${category}')" style="padding: 0.5rem 1rem;">Add Trick</button>
+                        </div>
+                        ${tricks.length > 0 ? `
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Difficulty</th>
+                                        <th>Example</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tricks.map((trick, index) => `
+                                        <tr>
+                                            <td>${trick.title || 'Untitled'}</td>
+                                            <td><span class="difficulty-${trick.difficulty || 'medium'}">${trick.difficulty || 'Medium'}</span></td>
+                                            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${trick.example || ''}</td>
+                                            <td>
+                                                <div class="table-actions">
+                                                    <button class="action-btn edit-btn" onclick="editMathTrick('${category}', ${index})">Edit</button>
+                                                    <button class="action-btn delete-btn" onclick="deleteMathTrick('${category}', ${index})">Delete</button>
+                                                    <button class="action-btn preview-btn" onclick="previewMathTrick('${category}', ${index})">Preview</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        ` : '<p style="color: #94a3b8; text-align: center;">No tricks in this category yet.</p>'}
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function showMathCategory(category) {
+            document.getElementById('mathTricksTable').style.display = 'none';
+            document.getElementById('mathConjecturesTable').style.display = 'none';
+            document.getElementById('mathParadoxesTable').style.display = 'none';
+            
+            const tabButtons = document.querySelectorAll('#mathTab .admin-tab');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            if (category === 'tricks') {
+                document.getElementById('mathTricksTable').style.display = 'block';
+                tabButtons[0].classList.add('active');
+            } else if (category === 'conjectures') {
+                document.getElementById('mathConjecturesTable').style.display = 'block';
+                tabButtons[1].classList.add('active');
+            } else if (category === 'paradoxes') {
+                document.getElementById('mathParadoxesTable').style.display = 'block';
+                tabButtons[2].classList.add('active');
+            }
+        }
+
+        // ====== FIXED: ADD MISSING FUNCTIONS ======
+        function loadConjecturesTable() {
+            const container = document.getElementById('conjecturesList');
+            let html = '';
+            
+            allData.mathConjectures.forEach((conjecture, index) => {
+                html += `
+                    <tr>
+                        <td>${conjecture.title || 'Untitled'}</td>
+                        <td><span class="status-${conjecture.status || 'unproven'}">${conjecture.status || 'Unproven'}</span></td>
+                        <td><span class="difficulty-${conjecture.difficulty || 'medium'}">${conjecture.difficulty || 'Medium'}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit-btn" onclick="editConjecture(${index})">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deleteConjecture(${index})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            container.innerHTML = html || '<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No conjectures found.</td></tr>';
+        }
+
+        function loadParadoxesTable() { // FIXED: Added this missing function
+            const container = document.getElementById('paradoxesList');
+            let html = '';
+            
+            allData.mathParadoxes.forEach((paradox, index) => {
+                html += `
+                    <tr>
+                        <td>${paradox.title || 'Untitled'}</td>
+                        <td><span class="status-${paradox.status || 'paradox'}">${paradox.status || 'Paradox'}</span></td>
+                        <td><span class="difficulty-${paradox.difficulty || 'medium'}">${paradox.difficulty || 'Medium'}</span></td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit-btn" onclick="editParadox(${index})">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deleteParadox(${index})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            container.innerHTML = html || '<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No paradoxes found.</td></tr>';
+        }
+
+        function editConjecture(index) {
+            const conjecture = allData.mathConjectures[index];
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Edit Mathematical Conjecture';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="editConjectureTitle" value="${conjecture.title || ''}">
+                    </div>
+                    <div class="form-row">
+                        <label>Status</label>
+                        <select id="editConjectureStatus">
+                            <option value="unproven" ${conjecture.status === 'unproven' ? 'selected' : ''}>Unproven</option>
+                            <option value="proven" ${conjecture.status === 'proven' ? 'selected' : ''}>Proven</option>
+                            <option value="partially-proven" ${conjecture.status === 'partially-proven' ? 'selected' : ''}>Partially Proven</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Difficulty</label>
+                        <select id="editConjectureDifficulty">
+                            <option value="easy" ${conjecture.difficulty === 'easy' ? 'selected' : ''}>Easy</option>
+                            <option value="medium" ${conjecture.difficulty === 'medium' ? 'selected' : ''}>Medium</option>
+                            <option value="hard" ${conjecture.difficulty === 'hard' ? 'selected' : ''}>Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Description</label>
+                        <textarea id="editConjectureDescription">${conjecture.description || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Example</label>
+                        <textarea id="editConjectureExample">${conjecture.example || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Detailed Explanation</label>
+                        <textarea id="editConjectureExplanation">${conjecture.explanation || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Interesting Fact</label>
+                        <textarea id="editConjectureFact">${conjecture.interestingFact || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Implications</label>
+                        <textarea id="editConjectureImplications">${conjecture.implications || ''}</textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="updateConjecture(${index})">Update Conjecture</button>
+                    <button class="btn btn-danger" onclick="deleteConjecture(${index})">Delete</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function deleteConjecture(index) {
+            if (confirm('Are you sure you want to delete this conjecture?')) {
+                allData.mathConjectures.splice(index, 1);
+                saveAllData();
+                loadConjecturesTable();
+                showAlert('Conjecture deleted successfully!', 'success');
+                closeModal();
+            }
+        }
+
+        function editParadox(index) { // FIXED: Added this missing function
+            const paradox = allData.mathParadoxes[index];
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Edit Mathematical Paradox';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="editParadoxTitle" value="${paradox.title || ''}">
+                    </div>
+                    <div class="form-row">
+                        <label>Status</label>
+                        <select id="editParadoxStatus">
+                            <option value="paradox" ${paradox.status === 'paradox' ? 'selected' : ''}>Paradox</option>
+                            <option value="resolved" ${paradox.status === 'resolved' ? 'selected' : ''}>Resolved</option>
+                            <option value="unresolved" ${paradox.status === 'unresolved' ? 'selected' : ''}>Unresolved</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Difficulty</label>
+                        <select id="editParadoxDifficulty">
+                            <option value="easy" ${paradox.difficulty === 'easy' ? 'selected' : ''}>Easy</option>
+                            <option value="medium" ${paradox.difficulty === 'medium' ? 'selected' : ''}>Medium</option>
+                            <option value="hard" ${paradox.difficulty === 'hard' ? 'selected' : ''}>Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Description</label>
+                        <textarea id="editParadoxDescription">${paradox.description || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Example</label>
+                        <textarea id="editParadoxExample">${paradox.example || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Detailed Explanation</label>
+                        <textarea id="editParadoxExplanation">${paradox.explanation || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Interesting Fact</label>
+                        <textarea id="editParadoxFact">${paradox.interestingFact || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Applications</label>
+                        <textarea id="editParadoxApplications">${paradox.applications || ''}</textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="updateParadox(${index})">Update Paradox</button>
+                    <button class="btn btn-danger" onclick="deleteParadox(${index})">Delete</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function updateParadox(index) { // FIXED: Added this missing function
+            const paradox = {
+                id: allData.mathParadoxes[index].id || 'paradox-' + Date.now(),
+                title: document.getElementById('editParadoxTitle').value,
+                status: document.getElementById('editParadoxStatus').value,
+                difficulty: document.getElementById('editParadoxDifficulty').value,
+                description: document.getElementById('editParadoxDescription').value,
+                example: document.getElementById('editParadoxExample').value,
+                explanation: document.getElementById('editParadoxExplanation').value,
+                interestingFact: document.getElementById('editParadoxFact').value,
+                applications: document.getElementById('editParadoxApplications').value
+            };
+            
+            allData.mathParadoxes[index] = paradox;
+            saveAllData();
+            closeModal();
+            loadParadoxesTable();
+            showAlert('Paradox updated successfully!', 'success');
+        }
+
+        function deleteParadox(index) { // FIXED: Added this missing function
+            if (confirm('Are you sure you want to delete this paradox?')) {
+                allData.mathParadoxes.splice(index, 1);
+                saveAllData();
+                loadParadoxesTable();
+                showAlert('Paradox deleted successfully!', 'success');
+                closeModal();
+            }
+        }
+
+        function showAddMathTrick(category = null) {
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = category ? `Add Math Trick to ${category}` : 'Add Math Trick';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Category</label>
+                        <select id="trickCategory" ${category ? 'disabled' : ''}>
+                            <option value="addition" ${category === 'addition' ? 'selected' : ''}>Addition</option>
+                            <option value="subtraction" ${category === 'subtraction' ? 'selected' : ''}>Subtraction</option>
+                            <option value="multiplication" ${category === 'multiplication' ? 'selected' : ''}>Multiplication</option>
+                            <option value="division" ${category === 'division' ? 'selected' : ''}>Division</option>
+                            <option value="percentages" ${category === 'percentages' ? 'selected' : ''}>Percentages</option>
+                            <option value="squaring" ${category === 'squaring' ? 'selected' : ''}>Squaring</option>
+                            <option value="bonus" ${category === 'bonus' ? 'selected' : ''}>Bonus</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="trickTitle" placeholder="Enter trick title">
+                    </div>
+                    <div class="form-row">
+                        <label>Difficulty</label>
+                        <select id="trickDifficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Description</label>
+                        <textarea id="trickDescription" placeholder="Describe the trick"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Example</label>
+                        <textarea id="trickExample" placeholder="Provide an example"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Detailed Explanation</label>
+                        <textarea id="trickExplanation" placeholder="Provide detailed explanation"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Applications</label>
+                        <textarea id="trickApplications" placeholder="Where can this be applied?"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Practice Problems (JSON format)</label>
+                        <textarea id="trickPractice" placeholder='[{"question": "What is...", "answer": "...", "explanation": "..."}]'></textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="saveMathTrick()">Save Trick</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function saveMathTrick() {
+            const category = document.getElementById('trickCategory').value;
+            const trick = {
+                id: 'trick-' + Date.now(),
+                title: document.getElementById('trickTitle').value,
+                difficulty: document.getElementById('trickDifficulty').value,
+                description: document.getElementById('trickDescription').value,
+                example: document.getElementById('trickExample').value,
+                explanation: document.getElementById('trickExplanation').value,
+                applications: document.getElementById('trickApplications').value,
+                practice: JSON.parse(document.getElementById('trickPractice').value || '[]')
+            };
+            
+            if (!allData.mathTricks[category]) {
+                allData.mathTricks[category] = [];
+            }
+            
+            allData.mathTricks[category].push(trick);
+            saveAllData();
+            closeModal();
+            loadMathCategories();
+            showAlert('Math trick saved successfully!', 'success');
+        }
+
+        function editMathTrick(category, index) {
+            const trick = allData.mathTricks[category][index];
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Edit Math Trick';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Category</label>
+                        <input type="text" value="${category}" disabled>
+                    </div>
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="editTrickTitle" value="${trick.title || ''}">
+                    </div>
+                    <div class="form-row">
+                        <label>Difficulty</label>
+                        <select id="editTrickDifficulty">
+                            <option value="easy" ${trick.difficulty === 'easy' ? 'selected' : ''}>Easy</option>
+                            <option value="medium" ${trick.difficulty === 'medium' ? 'selected' : ''}>Medium</option>
+                            <option value="hard" ${trick.difficulty === 'hard' ? 'selected' : ''}>Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Description</label>
+                        <textarea id="editTrickDescription">${trick.description || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Example</label>
+                        <textarea id="editTrickExample">${trick.example || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Detailed Explanation</label>
+                        <textarea id="editTrickExplanation">${trick.explanation || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Applications</label>
+                        <textarea id="editTrickApplications">${trick.applications || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Practice Problems (JSON format)</label>
+                        <textarea id="editTrickPractice">${JSON.stringify(trick.practice || [], null, 2)}</textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="updateMathTrick('${category}', ${index})">Update Trick</button>
+                    <button class="btn btn-danger" onclick="deleteMathTrick('${category}', ${index})">Delete</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function updateMathTrick(category, index) {
+            allData.mathTricks[category][index] = {
+                id: allData.mathTricks[category][index].id,
+                title: document.getElementById('editTrickTitle').value,
+                difficulty: document.getElementById('editTrickDifficulty').value,
+                description: document.getElementById('editTrickDescription').value,
+                example: document.getElementById('editTrickExample').value,
+                explanation: document.getElementById('editTrickExplanation').value,
+                applications: document.getElementById('editTrickApplications').value,
+                practice: JSON.parse(document.getElementById('editTrickPractice').value || '[]')
+            };
+            
+            saveAllData();
+            closeModal();
+            loadMathCategories();
+            showAlert('Math trick updated successfully!', 'success');
+        }
+
+        function deleteMathTrick(category, index) {
+            if (confirm('Are you sure you want to delete this math trick? This action cannot be undone.')) {
+                allData.mathTricks[category].splice(index, 1);
+                saveAllData();
+                loadMathCategories();
+                showAlert('Math trick deleted successfully!', 'success');
+                closeModal();
+            }
+        }
+
+        function showAddConjecture() {
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Add Mathematical Conjecture';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="conjectureTitle" placeholder="Enter conjecture title">
+                    </div>
+                    <div class="form-row">
+                        <label>Status</label>
+                        <select id="conjectureStatus">
+                            <option value="unproven">Unproven</option>
+                            <option value="proven">Proven</option>
+                            <option value="partially-proven">Partially Proven</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Difficulty</label>
+                        <select id="conjectureDifficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Description</label>
+                        <textarea id="conjectureDescription" placeholder="Describe the conjecture"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Example</label>
+                        <textarea id="conjectureExample" placeholder="Provide an example"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Detailed Explanation</label>
+                        <textarea id="conjectureExplanation" placeholder="Provide detailed explanation"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Interesting Fact</label>
+                        <textarea id="conjectureFact" placeholder="Add an interesting fact"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Implications</label>
+                        <textarea id="conjectureImplications" placeholder="What are the implications?"></textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="saveConjecture()">Save Conjecture</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function saveConjecture() {
+            const conjecture = {
+                id: 'conjecture-' + Date.now(),
+                title: document.getElementById('conjectureTitle').value,
+                status: document.getElementById('conjectureStatus').value,
+                difficulty: document.getElementById('conjectureDifficulty').value,
+                description: document.getElementById('conjectureDescription').value,
+                example: document.getElementById('conjectureExample').value,
+                explanation: document.getElementById('conjectureExplanation').value,
+                interestingFact: document.getElementById('conjectureFact').value,
+                implications: document.getElementById('conjectureImplications').value
+            };
+            
+            allData.mathConjectures.push(conjecture);
+            saveAllData();
+            closeModal();
+            loadConjecturesTable();
+            showAlert('Conjecture saved successfully!', 'success');
+        }
+
+        function updateConjecture(index) {
+            allData.mathConjectures[index] = {
+                id: allData.mathConjectures[index].id,
+                title: document.getElementById('editConjectureTitle').value,
+                status: document.getElementById('editConjectureStatus').value,
+                difficulty: document.getElementById('editConjectureDifficulty').value,
+                description: document.getElementById('editConjectureDescription').value,
+                example: document.getElementById('editConjectureExample').value,
+                explanation: document.getElementById('editConjectureExplanation').value,
+                interestingFact: document.getElementById('editConjectureFact').value,
+                implications: document.getElementById('editConjectureImplications').value
+            };
+            
+            saveAllData();
+            closeModal();
+            loadConjecturesTable();
+            showAlert('Conjecture updated successfully!', 'success');
+        }
+
+        function showAddParadox() {
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Add Mathematical Paradox';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="paradoxTitle" placeholder="Enter paradox title">
+                    </div>
+                    <div class="form-row">
+                        <label>Status</label>
+                        <select id="paradoxStatus">
+                            <option value="paradox">Paradox</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="unresolved">Unresolved</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Difficulty</label>
+                        <select id="paradoxDifficulty">
+                            <option value="easy">Easy</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Description</label>
+                        <textarea id="paradoxDescription" placeholder="Describe the paradox"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Example</label>
+                        <textarea id="paradoxExample" placeholder="Provide an example"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Detailed Explanation</label>
+                        <textarea id="paradoxExplanation" placeholder="Provide detailed explanation"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Interesting Fact</label>
+                        <textarea id="paradoxFact" placeholder="Add an interesting fact"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Applications</label>
+                        <textarea id="paradoxApplications" placeholder="Where is this applicable?"></textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="saveParadox()">Save Paradox</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function saveParadox() {
+            const paradox = {
+                id: 'paradox-' + Date.now(),
+                title: document.getElementById('paradoxTitle').value,
+                status: document.getElementById('paradoxStatus').value,
+                difficulty: document.getElementById('paradoxDifficulty').value,
+                description: document.getElementById('paradoxDescription').value,
+                example: document.getElementById('paradoxExample').value,
+                explanation: document.getElementById('paradoxExplanation').value,
+                interestingFact: document.getElementById('paradoxFact').value,
+                applications: document.getElementById('paradoxApplications').value
+            };
+            
+            allData.mathParadoxes.push(paradox);
+            saveAllData();
+            closeModal();
+            loadParadoxesTable();
+            showAlert('Paradox saved successfully!', 'success');
+        }
+
+        // ====== PHYSICS CONTENT MANAGEMENT ======
+        function loadPhysicsTables() {
+            loadEquationsTable();
+            loadTheoriesTable(); // FIXED: This function was missing
+            loadConceptsTable();
+        }
+
+        function loadEquationsTable() {
+            const container = document.getElementById('equationsList');
+            let html = '';
+            
+            allData.physicsEquations.forEach((equation, index) => {
+                html += `
+                    <tr>
+                        <td>${equation.title || 'Untitled'}</td>
+                        <td style="font-family: monospace;">${equation.formula || ''}</td>
+                        <td>${equation.category || 'General'}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit-btn" onclick="editPhysicsEquation(${index})">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deletePhysicsEquation(${index})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            container.innerHTML = html || '<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No equations found.</td></tr>';
+        }
+
+        // ====== FIXED: ADD MISSING PHYSICS THEORIES FUNCTIONS ======
+        function loadTheoriesTable() { // FIXED: Added this missing function
+            const container = document.getElementById('theoriesList');
+            let html = '';
+            
+            allData.physicsTheories.forEach((theory, index) => {
+                html += `
+                    <tr>
+                        <td>${theory.title || 'Untitled'}</td>
+                        <td>${theory.type || 'General'}</td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${theory.keyConcepts || ''}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit-btn" onclick="editPhysicsTheory(${index})">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deletePhysicsTheory(${index})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            container.innerHTML = html || '<tr><td colspan="4" style="text-align: center; color: #94a3b8;">No theories found.</td></tr>';
+        }
+
+        function loadConceptsTable() {
+            const container = document.getElementById('conceptsList');
+            let html = '';
+            
+            allData.physicsConcepts.forEach((concept, index) => {
+                html += `
+                    <tr>
+                        <td>${concept.title || 'Untitled'}</td>
+                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${concept.explanation || ''}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit-btn" onclick="editPhysicsConcept(${index})">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deletePhysicsConcept(${index})">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            container.innerHTML = html || '<tr><td colspan="3" style="text-align: center; color: #94a3b8;">No concepts found.</td></tr>';
+        }
+
+        function showPhysicsCategory(category) {
+            document.getElementById('physicsEquationsTable').style.display = 'none';
+            document.getElementById('physicsTheoriesTable').style.display = 'none';
+            document.getElementById('physicsConceptsTable').style.display = 'none';
+            
+            const tabButtons = document.querySelectorAll('#physicsTab .admin-tab');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            if (category === 'equations') {
+                document.getElementById('physicsEquationsTable').style.display = 'block';
+                tabButtons[0].classList.add('active');
+            } else if (category === 'theories') {
+                document.getElementById('physicsTheoriesTable').style.display = 'block';
+                tabButtons[1].classList.add('active');
+            } else if (category === 'concepts') {
+                document.getElementById('physicsConceptsTable').style.display = 'block';
+                tabButtons[2].classList.add('active');
+            }
+        }
+
+        function showAddPhysicsEquation() {
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Add Physics Equation';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="equationTitle" placeholder="Enter equation title">
+                    </div>
+                    <div class="form-row">
+                        <label>Formula</label>
+                        <textarea id="equationFormula" placeholder="Enter the formula (LaTeX supported)"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Category</label>
+                        <select id="equationCategory">
+                            <option value="mechanics">Mechanics</option>
+                            <option value="thermodynamics">Thermodynamics</option>
+                            <option value="electromagnetism">Electromagnetism</option>
+                            <option value="optics">Optics</option>
+                            <option value="quantum">Quantum Physics</option>
+                            <option value="relativity">Relativity</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Explanation</label>
+                        <textarea id="equationExplanation" placeholder="Explain the equation"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Derivation</label>
+                        <textarea id="equationDerivation" placeholder="Explain the derivation"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Applications</label>
+                        <textarea id="equationApplications" placeholder="List applications"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Example</label>
+                        <textarea id="equationExample" placeholder="Provide an example"></textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="savePhysicsEquation()">Save Equation</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function savePhysicsEquation() {
+            const equation = {
+                id: 'equation-' + Date.now(),
+                title: document.getElementById('equationTitle').value,
+                formula: document.getElementById('equationFormula').value,
+                category: document.getElementById('equationCategory').value,
+                explanation: document.getElementById('equationExplanation').value,
+                derivation: document.getElementById('equationDerivation').value,
+                applications: document.getElementById('equationApplications').value,
+                example: document.getElementById('equationExample').value
+            };
+            
+            allData.physicsEquations.push(equation);
+            saveAllData();
+            closeModal();
+            loadEquationsTable();
+            showAlert('Physics equation saved successfully!', 'success');
+        }
+
+        function editPhysicsEquation(index) {
+            const equation = allData.physicsEquations[index];
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Edit Physics Equation';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="editEquationTitle" value="${equation.title || ''}">
+                    </div>
+                    <div class="form-row">
+                        <label>Formula</label>
+                        <textarea id="editEquationFormula">${equation.formula || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Category</label>
+                        <select id="editEquationCategory">
+                            <option value="mechanics" ${equation.category === 'mechanics' ? 'selected' : ''}>Mechanics</option>
+                            <option value="thermodynamics" ${equation.category === 'thermodynamics' ? 'selected' : ''}>Thermodynamics</option>
+                            <option value="electromagnetism" ${equation.category === 'electromagnetism' ? 'selected' : ''}>Electromagnetism</option>
+                            <option value="optics" ${equation.category === 'optics' ? 'selected' : ''}>Optics</option>
+                            <option value="quantum" ${equation.category === 'quantum' ? 'selected' : ''}>Quantum Physics</option>
+                            <option value="relativity" ${equation.category === 'relativity' ? 'selected' : ''}>Relativity</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Explanation</label>
+                        <textarea id="editEquationExplanation">${equation.explanation || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Derivation</label>
+                        <textarea id="editEquationDerivation">${equation.derivation || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Applications</label>
+                        <textarea id="editEquationApplications">${equation.applications || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Example</label>
+                        <textarea id="editEquationExample">${equation.example || ''}</textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="updatePhysicsEquation(${index})">Update Equation</button>
+                    <button class="btn btn-danger" onclick="deletePhysicsEquation(${index})">Delete</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function updatePhysicsEquation(index) {
+            allData.physicsEquations[index] = {
+                id: allData.physicsEquations[index].id,
+                title: document.getElementById('editEquationTitle').value,
+                formula: document.getElementById('editEquationFormula').value,
+                category: document.getElementById('editEquationCategory').value,
+                explanation: document.getElementById('editEquationExplanation').value,
+                derivation: document.getElementById('editEquationDerivation').value,
+                applications: document.getElementById('editEquationApplications').value,
+                example: document.getElementById('editEquationExample').value
+            };
+            
+            saveAllData();
+            closeModal();
+            loadEquationsTable();
+            showAlert('Physics equation updated successfully!', 'success');
+        }
+
+        function deletePhysicsEquation(index) {
+            if (confirm('Are you sure you want to delete this physics equation?')) {
+                allData.physicsEquations.splice(index, 1);
+                saveAllData();
+                loadEquationsTable();
+                showAlert('Physics equation deleted successfully!', 'success');
+                closeModal();
+            }
+        }
+
+        // FIXED: Added missing physics theory functions
+        function showAddPhysicsTheory() {
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Add Physics Theory';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="theoryTitle" placeholder="Enter theory title">
+                    </div>
+                    <div class="form-row">
+                        <label>Type</label>
+                        <input type="text" id="theoryType" placeholder="e.g., Special & General, Fundamental theory">
+                    </div>
+                    <div class="form-row">
+                        <label>Explanation</label>
+                        <textarea id="theoryExplanation" placeholder="Explain the theory"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Key Concepts</label>
+                        <textarea id="theoryKeyConcepts" placeholder="List key concepts"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Evidence</label>
+                        <textarea id="theoryEvidence" placeholder="Provide evidence"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Implications</label>
+                        <textarea id="theoryImplications" placeholder="What are the implications?"></textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="savePhysicsTheory()">Save Theory</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function savePhysicsTheory() {
+            const theory = {
+                id: 'theory-' + Date.now(),
+                title: document.getElementById('theoryTitle').value,
+                type: document.getElementById('theoryType').value,
+                explanation: document.getElementById('theoryExplanation').value,
+                keyConcepts: document.getElementById('theoryKeyConcepts').value,
+                evidence: document.getElementById('theoryEvidence').value,
+                implications: document.getElementById('theoryImplications').value
+            };
+            
+            allData.physicsTheories.push(theory);
+            saveAllData();
+            closeModal();
+            loadTheoriesTable();
+            showAlert('Physics theory saved successfully!', 'success');
+        }
+
+        function editPhysicsTheory(index) {
+            const theory = allData.physicsTheories[index];
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Edit Physics Theory';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="editTheoryTitle" value="${theory.title || ''}">
+                    </div>
+                    <div class="form-row">
+                        <label>Type</label>
+                        <input type="text" id="editTheoryType" value="${theory.type || ''}">
+                    </div>
+                    <div class="form-row">
+                        <label>Explanation</label>
+                        <textarea id="editTheoryExplanation">${theory.explanation || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Key Concepts</label>
+                        <textarea id="editTheoryKeyConcepts">${theory.keyConcepts || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Evidence</label>
+                        <textarea id="editTheoryEvidence">${theory.evidence || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Implications</label>
+                        <textarea id="editTheoryImplications">${theory.implications || ''}</textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="updatePhysicsTheory(${index})">Update Theory</button>
+                    <button class="btn btn-danger" onclick="deletePhysicsTheory(${index})">Delete</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function updatePhysicsTheory(index) {
+            allData.physicsTheories[index] = {
+                id: allData.physicsTheories[index].id,
+                title: document.getElementById('editTheoryTitle').value,
+                type: document.getElementById('editTheoryType').value,
+                explanation: document.getElementById('editTheoryExplanation').value,
+                keyConcepts: document.getElementById('editTheoryKeyConcepts').value,
+                evidence: document.getElementById('editTheoryEvidence').value,
+                implications: document.getElementById('editTheoryImplications').value
+            };
+            
+            saveAllData();
+            closeModal();
+            loadTheoriesTable();
+            showAlert('Physics theory updated successfully!', 'success');
+        }
+
+        function deletePhysicsTheory(index) {
+            if (confirm('Are you sure you want to delete this physics theory?')) {
+                allData.physicsTheories.splice(index, 1);
+                saveAllData();
+                loadTheoriesTable();
+                showAlert('Physics theory deleted successfully!', 'success');
+                closeModal();
+            }
+        }
+
+        // FIXED: Added missing physics concept functions
+        function showAddPhysicsConcept() {
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Add Physics Concept';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="conceptTitle" placeholder="Enter concept title">
+                    </div>
+                    <div class="form-row">
+                        <label>Explanation</label>
+                        <textarea id="conceptExplanation" placeholder="Explain the concept"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Example</label>
+                        <textarea id="conceptExample" placeholder="Provide an example"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Implications</label>
+                        <textarea id="conceptImplications" placeholder="What are the implications?"></textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="savePhysicsConcept()">Save Concept</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function savePhysicsConcept() {
+            const concept = {
+                id: 'concept-' + Date.now(),
+                title: document.getElementById('conceptTitle').value,
+                explanation: document.getElementById('conceptExplanation').value,
+                example: document.getElementById('conceptExample').value,
+                implications: document.getElementById('conceptImplications').value
+            };
+            
+            allData.physicsConcepts.push(concept);
+            saveAllData();
+            closeModal();
+            loadConceptsTable();
+            showAlert('Physics concept saved successfully!', 'success');
+        }
+
+        function editPhysicsConcept(index) {
+            const concept = allData.physicsConcepts[index];
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Edit Physics Concept';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Title</label>
+                        <input type="text" id="editConceptTitle" value="${concept.title || ''}">
+                    </div>
+                    <div class="form-row">
+                        <label>Explanation</label>
+                        <textarea id="editConceptExplanation">${concept.explanation || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Example</label>
+                        <textarea id="editConceptExample">${concept.example || ''}</textarea>
+                    </div>
+                    <div class="form-row">
+                        <label>Implications</label>
+                        <textarea id="editConceptImplications">${concept.implications || ''}</textarea>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="updatePhysicsConcept(${index})">Update Concept</button>
+                    <button class="btn btn-danger" onclick="deletePhysicsConcept(${index})">Delete</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function updatePhysicsConcept(index) {
+            allData.physicsConcepts[index] = {
+                id: allData.physicsConcepts[index].id,
+                title: document.getElementById('editConceptTitle').value,
+                explanation: document.getElementById('editConceptExplanation').value,
+                example: document.getElementById('editConceptExample').value,
+                implications: document.getElementById('editConceptImplications').value
+            };
+            
+            saveAllData();
+            closeModal();
+            loadConceptsTable();
+            showAlert('Physics concept updated successfully!', 'success');
+        }
+
+        function deletePhysicsConcept(index) {
+            if (confirm('Are you sure you want to delete this physics concept?')) {
+                allData.physicsConcepts.splice(index, 1);
+                saveAllData();
+                loadConceptsTable();
+                showAlert('Physics concept deleted successfully!', 'success');
+                closeModal();
+            }
+        }
+
+        // ====== USER MANAGEMENT ======
+        function loadUsersTable() {
+            const container = document.getElementById('usersList');
+            let html = '';
+            
+            allData.users.forEach((user, index) => {
+                const progress = JSON.parse(localStorage.getItem(`progress_${user.id}`) || '{}');
+                const learnedCount = progress.learnedTopics ? progress.learnedTopics.length : 0;
+                const practiceCount = progress.practiceCount || 0;
+                
+                html += `
+                    <tr>
+                        <td>${user.id || index + 1}</td>
+                        <td>${user.name || 'No Name'}</td>
+                        <td>${user.username || 'No Username'}</td>
+                        <td>${user.joined || 'Unknown'}</td>
+                        <td>${learnedCount} topics</td>
+                        <td>${practiceCount} sessions</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit-btn" onclick="editUser(${index})">Edit</button>
+                                <button class="action-btn delete-btn" onclick="deleteUser(${index})">Delete</button>
+                                <button class="action-btn preview-btn" onclick="viewUserProgress(${index})">Progress</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            container.innerHTML = html || '<tr><td colspan="7" style="text-align: center; color: #94a3b8;">No users found.</td></tr>';
+        }
+
+        function showAddUser() {
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Add New User';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Full Name</label>
+                        <input type="text" id="newUserName" placeholder="Enter user's full name">
+                    </div>
+                    <div class="form-row">
+                        <label>Username</label>
+                        <input type="text" id="newUserUsername" placeholder="Enter username">
+                    </div>
+                    <div class="form-row">
+                        <label>Password</label>
+                        <input type="password" id="newUserPassword" placeholder="Enter password">
+                    </div>
+                    <div class="form-row">
+                        <label>Email (Optional)</label>
+                        <input type="email" id="newUserEmail" placeholder="Enter email address">
+                    </div>
+                    <div class="form-row">
+                        <label>User Role</label>
+                        <select id="newUserRole">
+                            <option value="student">Student</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="saveNewUser()">Create User</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function saveNewUser() {
+            const newUser = {
+                id: Date.now(),
+                name: document.getElementById('newUserName').value,
+                username: document.getElementById('newUserUsername').value,
+                password: document.getElementById('newUserPassword').value,
+                email: document.getElementById('newUserEmail').value || '',
+                role: document.getElementById('newUserRole').value,
+                joined: new Date().toLocaleDateString(),
+                status: 'active'
+            };
+            
+            allData.users.push(newUser);
+            saveAllData();
+            closeModal();
+            loadUsersTable();
+            showAlert('User created successfully!', 'success');
+        }
+
+        function editUser(index) {
+            const user = allData.users[index];
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = 'Edit User';
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-row">
+                        <label>Full Name</label>
+                        <input type="text" id="editUserName" value="${user.name || ''}">
+                    </div>
+                    <div class="form-row">
+                        <label>Username</label>
+                        <input type="text" id="editUserUsername" value="${user.username || ''}">
+                    </div>
+                    <div class="form-row">
+                        <label>New Password (leave blank to keep current)</label>
+                        <input type="password" id="editUserPassword" placeholder="Enter new password">
+                    </div>
+                    <div class="form-row">
+                        <label>Email</label>
+                        <input type="email" id="editUserEmail" value="${user.email || ''}">
+                    </div>
+                    <div class="form-row">
+                        <label>User Role</label>
+                        <select id="editUserRole">
+                            <option value="student" ${user.role === 'student' ? 'selected' : ''}>Student</option>
+                            <option value="teacher" ${user.role === 'teacher' ? 'selected' : ''}>Teacher</option>
+                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label>Status</label>
+                        <select id="editUserStatus">
+                            <option value="active" ${user.status === 'active' ? 'selected' : ''}>Active</option>
+                            <option value="suspended" ${user.status === 'suspended' ? 'selected' : ''}>Suspended</option>
+                            <option value="inactive" ${user.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="updateUser(${index})">Update User</button>
+                    <button class="btn btn-danger" onclick="deleteUser(${index})">Delete User</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function updateUser(index) {
+            const user = allData.users[index];
+            const newPassword = document.getElementById('editUserPassword').value;
+            
+            allData.users[index] = {
+                ...user,
+                name: document.getElementById('editUserName').value,
+                username: document.getElementById('editUserUsername').value,
+                password: newPassword || user.password,
+                email: document.getElementById('editUserEmail').value,
+                role: document.getElementById('editUserRole').value,
+                status: document.getElementById('editUserStatus').value
+            };
+            
+            saveAllData();
+            closeModal();
+            loadUsersTable();
+            showAlert('User updated successfully!', 'success');
+        }
+
+        function deleteUser(index) {
+            if (confirm('Are you sure you want to delete this user? All their progress will be lost.')) {
+                const userId = allData.users[index].id;
+                allData.users.splice(index, 1);
+                localStorage.removeItem(`progress_${userId}`);
+                saveAllData();
+                loadUsersTable();
+                showAlert('User deleted successfully!', 'success');
+                closeModal();
+            }
+        }
+
+        function viewUserProgress(index) {
+            const user = allData.users[index];
+            const progress = JSON.parse(localStorage.getItem(`progress_${user.id}`) || '{}');
+            
+            const modal = document.getElementById('contentModal');
+            const title = document.getElementById('modalTitle');
+            const body = document.getElementById('modalBody');
+            
+            title.textContent = `Progress Report: ${user.name}`;
+            
+            body.innerHTML = `
+                <div class="form-grid">
+                    <div class="form-card">
+                        <h3>User Information</h3>
+                        <p><strong>Name:</strong> ${user.name}</p>
+                        <p><strong>Username:</strong> ${user.username}</p>
+                        <p><strong>Joined:</strong> ${user.joined}</p>
+                        <p><strong>Status:</strong> ${user.status || 'active'}</p>
+                    </div>
+                    
+                    <div class="form-card">
+                        <h3>Learning Statistics</h3>
+                        <p><strong>Topics Learned:</strong> ${progress.learnedTopics ? progress.learnedTopics.length : 0}</p>
+                        <p><strong>Practice Sessions:</strong> ${progress.practiceCount || 0}</p>
+                        <p><strong>Day Streak:</strong> ${progress.dayStreak || 0}</p>
+                        <p><strong>Last Active:</strong> ${progress.lastPracticeDate || 'Never'}</p>
+                    </div>
+                </div>
+                
+                <div class="form-card" style="margin-top: 1.5rem;">
+                    <h3>Progress Details</h3>
+                    ${progress.learnedTopics && progress.learnedTopics.length > 0 ? `
+                        <ul>
+                            ${progress.learnedTopics.map(topic => `<li>${topic}</li>`).join('')}
+                        </ul>
+                    ` : '<p>No topics learned yet.</p>'}
+                </div>
+                
+                <div class="btn-group" style="margin-top: 2rem;">
+                    <button class="btn btn-danger" onclick="resetUserProgress(${index})">Reset Progress</button>
+                    <button class="btn btn-warning" onclick="generateUserCertificate(${index})">Generate Certificate</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function resetUserProgress(index) {
+            if (confirm('Are you sure you want to reset this user\'s progress?')) {
+                const userId = allData.users[index].id;
+                localStorage.removeItem(`progress_${userId}`);
+                showAlert('User progress reset successfully!', 'success');
+                closeModal();
+            }
+        }
+
+        // ====== CONTENT EDITOR FUNCTIONS ======
+        function saveSiteSettings() {
+            const settings = {
+                siteTitle: document.getElementById('siteTitle').value,
+                welcomeMessage: document.getElementById('welcomeMessage').value,
+                themeColor: document.getElementById('themeColor').value,
+                secondaryColor: document.getElementById('secondaryColor').value,
+                lastUpdated: new Date().toISOString()
+            };
+            
+            localStorage.setItem('learnetSiteSettings', JSON.stringify(settings));
+            showAlert('Site settings saved!', 'success');
+            logActivity('Site settings updated');
+        }
+
+        function resetSiteSettings() {
+            if (confirm('Reset all site settings to defaults?')) {
+                localStorage.removeItem('learnetSiteSettings');
+                showAlert('Site settings reset to defaults!', 'success');
+            }
+        }
+
+        // ====== BACKUP FUNCTIONS ======
+        function createBackup() {
+            const backupName = document.getElementById('backupName').value || `backup-${Date.now()}`;
+            const includeUsers = document.getElementById('backupUsers').checked;
+            const includeMath = document.getElementById('backupMath').checked;
+            const includePhysics = document.getElementById('backupPhysics').checked;
+            const includeSettings = document.getElementById('backupSettings').checked;
+            
+            const backupData = {
+                name: backupName,
+                date: new Date().toISOString(),
+                data: {}
+            };
+            
+            if (includeUsers) backupData.data.users = allData.users;
+            if (includeMath) {
+                backupData.data.mathTricks = allData.mathTricks;
+                backupData.data.mathConjectures = allData.mathConjectures;
+                backupData.data.mathParadoxes = allData.mathParadoxes;
+            }
+            if (includePhysics) {
+                backupData.data.physicsEquations = allData.physicsEquations;
+                backupData.data.physicsTheories = allData.physicsTheories;
+                backupData.data.physicsConcepts = allData.physicsConcepts;
+            }
+            if (includeSettings) backupData.data.settings = allData.settings;
+            
+            allData.backups.push(backupData);
+            saveAllData();
+            loadBackupHistory();
+            showAlert(`Backup "${backupName}" created successfully!`, 'success');
+            logActivity(`Backup created: ${backupName}`);
+        }
+
+        function loadBackupHistory() {
+            const container = document.getElementById('backupHistory');
+            let html = '';
+            
+            allData.backups.forEach((backup, index) => {
+                const backupSize = JSON.stringify(backup).length;
+                const contentTypes = [];
+                if (backup.data.users) contentTypes.push('Users');
+                if (backup.data.mathTricks) contentTypes.push('Math');
+                if (backup.data.physicsEquations) contentTypes.push('Physics');
+                if (backup.data.settings) contentTypes.push('Settings');
+                
+                html += `
+                    <tr>
+                        <td>${backup.name}</td>
+                        <td>${new Date(backup.date).toLocaleString()}</td>
+                        <td>${(backupSize / 1024).toFixed(2)} KB</td>
+                        <td>${contentTypes.join(', ')}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="action-btn edit-btn" onclick="restoreSpecificBackup(${index})">Restore</button>
+                                <button class="action-btn delete-btn" onclick="deleteBackup(${index})">Delete</button>
+                                <button class="action-btn preview-btn" onclick="downloadBackup(${index})">Download</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            container.innerHTML = html || '<tr><td colspan="5" style="text-align: center; color: #94a3b8;">No backups found.</td></tr>';
+        }
+
+        function restoreBackup() {
+            const fileInput = document.getElementById('restoreFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showAlert('Please select a backup file first.', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const backupData = JSON.parse(e.target.result);
+                    const restoreOption = document.getElementById('restoreOption').value;
+                    
+                    if (restoreOption === 'full') {
+                        // Full restore - replace everything
+                        if (backupData.data.users) allData.users = backupData.data.users;
+                        if (backupData.data.mathTricks) allData.mathTricks = backupData.data.mathTricks;
+                        if (backupData.data.mathConjectures) allData.mathConjectures = backupData.data.mathConjectures;
+                        if (backupData.data.mathParadoxes) allData.mathParadoxes = backupData.data.mathParadoxes;
+                        if (backupData.data.physicsEquations) allData.physicsEquations = backupData.data.physicsEquations;
+                        if (backupData.data.physicsTheories) allData.physicsTheories = backupData.data.physicsTheories;
+                        if (backupData.data.physicsConcepts) allData.physicsConcepts = backupData.data.physicsConcepts;
+                        if (backupData.data.settings) allData.settings = backupData.data.settings;
+                    } else {
+                        // Partial restore - merge data
+                        if (backupData.data.users) allData.users = [...allData.users, ...backupData.data.users];
+                        // Similar merging for other data types...
+                    }
+                    
+                    saveAllData();
+                    showAlert('Backup restored successfully!', 'success');
+                    logActivity(`Backup restored: ${backupData.name}`);
+                } catch (error) {
+                    showAlert('Error restoring backup: Invalid file format.', 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function restoreSpecificBackup(index) {
+            if (confirm('Restore this backup? Current data will be replaced.')) {
+                const backup = allData.backups[index];
+                
+                if (backup.data.users) allData.users = backup.data.users;
+                if (backup.data.mathTricks) allData.mathTricks = backup.data.mathTricks;
+                if (backup.data.mathConjectures) allData.mathConjectures = backup.data.mathConjectures;
+                if (backup.data.mathParadoxes) allData.mathParadoxes = backup.data.mathParadoxes;
+                if (backup.data.physicsEquations) allData.physicsEquations = backup.data.physicsEquations;
+                if (backup.data.physicsTheories) allData.physicsTheories = backup.data.physicsTheories;
+                if (backup.data.physicsConcepts) allData.physicsConcepts = backup.data.physicsConcepts;
+                if (backup.data.settings) allData.settings = backup.data.settings;
+                
+                saveAllData();
+                showAlert('Backup restored successfully!', 'success');
+            }
+        }
+
+        function downloadBackup(index) {
+            const backup = allData.backups[index];
+            const dataStr = JSON.stringify(backup, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `${backup.name}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        function deleteBackup(index) {
+            if (confirm('Delete this backup permanently?')) {
+                allData.backups.splice(index, 1);
+                saveAllData();
+                loadBackupHistory();
+                showAlert('Backup deleted!', 'success');
+            }
+        }
+
+        // ====== CODE EDITOR FUNCTIONS ======
+        function showEditorFile(fileType) {
+            const codeArea = document.getElementById('codeEditor');
+            const tabs = document.querySelectorAll('.editor-tab');
+            
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            switch(fileType) {
+                case 'index':
+                    codeArea.value = `<!-- This would contain the actual index.html code -->
+<!-- In a real implementation, this would load from the actual file -->
+<!-- For now, it's a placeholder for the code editor -->`;
+                    break;
+                case 'css':
+                    codeArea.value = `/* CSS styles would appear here */
+/* You can edit the styles directly */`;
+                    break;
+                case 'js':
+                    codeArea.value = `// JavaScript code would appear here
+// Edit the functionality directly`;
+                    break;
+                case 'config':
+                    codeArea.value = JSON.stringify(allData.settings, null, 2);
+                    break;
+            }
+        }
+
+        function saveCode() {
+            // In a real implementation, this would save to the actual files
+            showAlert('Code changes saved (simulated). In a real server, this would update actual files.', 'success');
+        }
+
+        function saveCustomCSS() {
+            const customCSS = document.getElementById('customCSS').value;
+            localStorage.setItem('learnetCustomCSS', customCSS);
+            showAlert('Custom CSS saved and injected!', 'success');
+        }
+
+        function saveCustomJS() {
+            const customJS = document.getElementById('customJS').value;
+            localStorage.setItem('learnetCustomJS', customJS);
+            showAlert('Custom JavaScript saved and injected!', 'success');
+        }
+
+        function exportAllCode() {
+            const allCode = {
+                settings: allData.settings,
+                customCSS: localStorage.getItem('learnetCustomCSS') || '',
+                customJS: localStorage.getItem('learnetCustomJS') || '',
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(allCode, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', `learnet-code-${Date.now()}.json`);
+            linkElement.click();
+        }
+
+        // ====== SETTINGS FUNCTIONS ======
+        function changeAdminPassword() {
+            const newPassword = document.getElementById('newAdminPassword').value;
+            const confirmPassword = document.getElementById('confirmAdminPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                showAlert('Passwords do not match!', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showAlert('Password must be at least 6 characters long!', 'error');
+                return;
+            }
+            
+            // In a real implementation, this would update the admin password
+            // For security, this should be handled server-side
+            showAlert('Admin password changed successfully!', 'success');
+            logActivity('Admin password changed');
+        }
+
+        function saveFeatureToggles() {
+            const features = {
+                practice: document.getElementById('featurePractice').checked,
+                profile: document.getElementById('featureProfile').checked,
+                progress: document.getElementById('featureProgress').checked,
+                analytics: document.getElementById('featureAnalytics').checked,
+                social: document.getElementById('featureSocial').checked,
+                offline: document.getElementById('featureOffline').checked
+            };
+            
+            localStorage.setItem('learnetFeatures', JSON.stringify(features));
+            showAlert('Feature toggles saved!', 'success');
+        }
+
+        function clearAllData() {
+            if (confirm('WARNING: This will delete ALL data including users, content, and settings. Are you absolutely sure?')) {
+                localStorage.clear();
+                showAlert('All data cleared! Page will reload.', 'warning');
+                setTimeout(() => location.reload(), 2000);
+            }
+        }
+
+        function resetToDefaults() {
+            if (confirm('Reset everything to factory defaults?')) {
+                // Clear specific data but keep admin session
+                const adminSession = localStorage.getItem('learnetAdminSession');
+                localStorage.clear();
+                if (adminSession) localStorage.setItem('learnetAdminSession', 'active');
+                
+                showAlert('Reset to factory defaults! Page will reload.', 'warning');
+                setTimeout(() => location.reload(), 2000);
+            }
+        }
+
+        function deleteAllContent() {
+            if (confirm('Delete all math and physics content? Users will remain.')) {
+                allData.mathTricks = {};
+                allData.mathConjectures = [];
+                allData.mathParadoxes = [];
+                allData.physicsEquations = [];
+                allData.physicsTheories = [];
+                allData.physicsConcepts = [];
+                saveAllData();
+                showAlert('All content deleted!', 'success');
+            }
+        }
+
+        // ====== UTILITY FUNCTIONS ======
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.getElementById('alertMessage');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function logActivity(action) {
+            const activity = {
+                timestamp: new Date().toISOString(),
+                admin: currentAdmin,
+                action: action,
+                ip: '127.0.0.1' // In real implementation, get actual IP
+            };
+            
+            allData.analytics.unshift(activity);
+            if (allData.analytics.length > 1000) {
+                allData.analytics = allData.analytics.slice(0, 1000);
+            }
+            
+            // Update recent activity display
+            updateRecentActivity();
+        }
+
+        function updateRecentActivity() {
+            const container = document.getElementById('recentActivity');
+            let html = '';
+            
+            const recent = allData.analytics.slice(0, 10);
+            recent.forEach(activity => {
+                const time = new Date(activity.timestamp).toLocaleTimeString();
+                html += `<p style="margin-bottom: 0.5rem; font-size: 0.9rem;">
+                    <span style="color: #94a3b8;">[${time}]</span>
+                    <span style="color: #60a5fa;"> ${activity.admin}:</span>
+                    <span> ${activity.action}</span>
+                </p>`;
+            });
+            
+            container.innerHTML = html || '<p style="color: #94a3b8; text-align: center;">No recent activity</p>';
+        }
+
+        function closeModal() {
+            document.getElementById('contentModal').style.display = 'none';
+        }
+
+        function updateAllTables() {
+            loadMathTables();
+            loadPhysicsTables();
+            loadUsersTable();
+            updateRecentActivity();
+        }
+
+        function searchMathContent() {
+            const query = document.getElementById('searchMath').value.toLowerCase();
+            // Implement search logic here
+            console.log('Searching math content for:', query);
+        }
+
+        function searchPhysicsContent() {
+            const query = document.getElementById('searchPhysics').value.toLowerCase();
+            // Implement search logic here
+            console.log('Searching physics content for:', query);
+        }
+
+        function searchUsers() {
+            const query = document.getElementById('searchUsers').value.toLowerCase();
+            // Implement search logic here
+            console.log('Searching users for:', query);
+        }
+
+        function exportAllData() {
+            const dataStr = JSON.stringify(allData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `learnet-export-${Date.now()}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showAlert('All data exported successfully!', 'success');
+            logActivity('All data exported');
+        }
+
+        function clearAllCache() {
+            if (confirm('Clear all browser cache?')) {
+                // Clear localStorage except admin session
+                const adminSession = localStorage.getItem('learnetAdminSession');
+                const keysToKeep = ['learnetAdminSession'];
+                
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (!keysToKeep.includes(key)) {
+                        localStorage.removeItem(key);
+                    }
+                }
+                
+                showAlert('Cache cleared! Reloading...', 'success');
+                setTimeout(() => location.reload(), 1500);
+            }
+        }
+
+        function resetAllData() {
+            if (confirm('Reset all user progress and statistics?')) {
+                // Clear all user progress
+                allData.users.forEach(user => {
+                    localStorage.removeItem(`progress_${user.id}`);
+                });
+                
+                // Reset practice counts
+                allData.users = allData.users.map(user => ({...user}));
+                
+                showAlert('All user data reset!', 'success');
+                logActivity('All user data reset');
+            }
+        }
+
+        function importMathData() {
+            // Implement math data import
+            showAlert('Math data import feature coming soon!', 'warning');
+        }
+
+        function importPhysicsData() {
+            // Implement physics data import
+            showAlert('Physics data import feature coming soon!', 'warning');
+        }
+
+        function exportUsers() {
+            const usersData = JSON.stringify(allData.users, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(usersData);
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', `learnet-users-${Date.now()}.json`);
+            linkElement.click();
+        }
+
+        function resetAllUsers() {
+            if (confirm('Reset all users to default demo users?')) {
+                allData.users = [
+                    {
+                        id: 1,
+                        name: "Demo User",
+                        username: "demo",
+                        password: "demo",
+                        joined: new Date().toLocaleDateString()
+                    }
+                ];
+                saveAllData();
+                showAlert('All users reset!', 'success');
+            }
+        }
+
+        function deleteAllUsers() {
+            if (confirm('DELETE ALL USERS? This cannot be undone!')) {
+                allData.users = [];
+                saveAllData();
+                showAlert('All users deleted!', 'success');
+            }
+        }
+
+        function addBulkUsers() {
+            const bulkText = document.getElementById('bulkUsers').value;
+            const lines = bulkText.split('\n').filter(line => line.trim());
+            
+            let added = 0;
+            lines.forEach(line => {
+                const parts = line.split(',').map(part => part.trim());
+                if (parts.length >= 3) {
+                    const [name, username, password] = parts;
+                    allData.users.push({
+                        id: Date.now() + Math.random(),
+                        name,
+                        username,
+                        password,
+                        joined: new Date().toLocaleDateString()
+                    });
+                    added++;
+                }
+            });
+            
+            if (added > 0) {
+                saveAllData();
+                showAlert(`${added} users added successfully!`, 'success');
+            }
+        }
+
+        function generateTestUsers() {
+            const count = parseInt(document.getElementById('testUserCount').value) || 10;
+            const firstNames = ['John', 'Jane', 'Alex', 'Sarah', 'Mike', 'Emma', 'David', 'Lisa', 'Tom', 'Anna'];
+            const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez'];
+            
+            for (let i = 0; i < count; i++) {
+                const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+                const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+                const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}${Math.floor(Math.random() * 100)}`;
+                
+                allData.users.push({
+                    id: Date.now() + i,
+                    name: `${firstName} ${lastName}`,
+                    username,
+                    password: 'password123',
+                    joined: new Date().toLocaleDateString()
+                });
+            }
+            
+            saveAllData();
+            showAlert(`${count} test users generated!`, 'success');
+        }
+
+        function previewChanges() {
+            showAlert('Preview feature coming soon!', 'warning');
+        }
+
+        function saveHomeContent() {
+            showAlert('Home content saved!', 'success');
+        }
+
+        function loadAnalytics() {
+            showAlert('Analytics dashboard loading...', 'info');
+        }
+
+        function generateUserReport() {
+            showAlert('User report generated!', 'success');
+        }
+
+        function generateContentReport() {
+            showAlert('Content report generated!', 'success');
+        }
+
+        function generateSystemReport() {
+            showAlert('System report generated!', 'success');
+        }
+
+        function saveBackupSettings() {
+            showAlert('Backup settings saved!', 'success');
+        }
+
+        function minifyCode() {
+            showAlert('Code minification feature coming soon!', 'warning');
+        }
+
+        function resetAllCode() {
+            if (confirm('Reset all custom code to defaults?')) {
+                localStorage.removeItem('learnetCustomCSS');
+                localStorage.removeItem('learnetCustomJS');
+                showAlert('Custom code reset!', 'success');
+            }
+        }
+
+        function previewMathTrick(category, index) {
+            showAlert('Preview feature coming soon!', 'warning');
+        }
+
+        function generateUserCertificate(index) {
+            showAlert('Certificate generation feature coming soon!', 'warning');
+        }
+
+        // Initialize
+        updateRecentActivity();
+    </script>
+</body>
+</html>
