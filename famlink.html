@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriSmart AI - Farmer Support Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #2e7d32;
+            --light-green: #4caf50;
+            --dark-green: #1b5e20;
+            --soil-brown: #8d6e63;
+            --sun-yellow: #ffb74d;
+            --sky-blue: #4fc3f7;
+            --text-dark: #2c3e50;
+            --text-light: #f5f5f5;
+            --bg-light: #f9f9f9;
+            --bg-dark: #121212;
+            --card-light: #ffffff;
+            --card-dark: #1e1e1e;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--light-green));
+            --gradient-dark: linear-gradient(135deg, var(--dark-green), #2e7d32);
+            --ai-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --border-radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            transition: var(--transition);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .app-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.2rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo-text h1 {
+            font-size: 1.5rem;
+            margin-bottom: 3px;
+            font-weight: 700;
+        }
+
+        .logo-text p {
+            font-size: 0.85rem;
+            opacity: 0.95;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* Main Navigation */
+        .main-nav {
+            background: white;
+            position: sticky;
+            top: 80px;
+            z-index: 99;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        body.dark-mode .main-nav {
+            background: #1e1e1e;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-tabs {
+            display: flex;
+            list-style: none;
+            overflow-x: auto;
+            flex: 1;
+        }
+
+        .nav-tab {
+            padding: 16px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #555;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        body.dark-mode .nav-tab {
+            color: #ccc;
+        }
+
+        .nav-tab:hover {
+            background: rgba(46, 125, 50, 0.08);
+        }
+
+        .nav-tab.active {
+            border-bottom-color: var(--primary-green);
+            color: var(--primary-green);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        /* Chat Interface */
+        .chat-section {
+            max-width: 900px;
+            margin: 0 auto 2rem;
+        }
+
+        .chat-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.dark-mode .chat-container {
+            background: #1e1e1e;
+        }
+
+        .chat-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.2rem;
+            text-align: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            line-height: 1.5;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background: var(--gradient-primary);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background: #e8f5e9;
+            color: var(--text-dark);
+            border-bottom-left-radius: 5px;
+        }
+
+        body.dark-mode .ai-message {
+            background: #2a2a2a;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        body.dark-mode .chat-input-container {
+            border-top-color: #333;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        body.dark-mode .chat-input {
+            background: #2a2a2a;
+            border-color: #444;
+            color: white;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary-green);
+        }
+
+        .send-btn {
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .send-btn:hover {
+            background: var(--dark-green);
+            transform: scale(1.05);
+        }
+
+        /* Quick Questions */
+        .quick-questions {
+            margin-top: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .quick-question {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        body.dark-mode .quick-question {
+            background: #2a2a2a;
+            border-color: #444;
+        }
+
+        .quick-question:hover {
+            background: var(--primary-green);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-green);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+        }
+
+        body.dark-mode .info-card {
+            background: #1e1e1e;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-body {
+            padding: 1.2rem;
+        }
+
+        .card-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        body.dark-mode .card-item {
+            border-bottom-color: #333;
+        }
+
+        .card-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 98;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .bottom-nav {
+            background: #1e1e1e;
+            border-top-color: #333;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: var(--transition);
+            min-width: 60px;
+        }
+
+        .nav-item:hover {
+            background: rgba(46, 125, 50, 0.1);
+        }
+
+        body.dark-mode .nav-item:hover {
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            color: var(--primary-green);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(46, 125, 50, 0.1);
+            border-radius: 10px;
+        }
+
+        body.dark-mode .nav-icon {
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .nav-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        body.dark-mode .nav-label {
+            color: #ccc;
+        }
+
+        .nav-item.active .nav-icon {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .nav-item.active .nav-label {
+            color: var(--primary-green);
+        }
+
+        /* Hamburger Menu */
+        .hamburger-menu {
+            position: relative;
+        }
+
+        .hamburger-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: rgba(46, 125, 50, 0.1);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary-green);
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+
+        .hamburger-btn:hover {
+            background: var(--primary-green);
+            color: white;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 101;
+        }
+
+        body.dark-mode .dropdown-menu {
+            background: #2a2a2a;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 1px solid #eee;
+        }
+
+        body.dark-mode .dropdown-item {
+            border-bottom-color: #444;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(46, 125, 50, 0.1);
+        }
+
+        body.dark-mode .dropdown-item:hover {
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        /* Floating AI Button */
+        .ai-button {
+            position: fixed;
+            bottom: 70px;
+            left: 20px;
+            width: 56px;
+            height: 56px;
+            background: var(--ai-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            z-index: 99;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .ai-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            border-top: 1px solid #eee;
+            line-height: 1.6;
+        }
+
+        body.dark-mode .app-footer {
+            color: #aaa;
+            border-top-color: #333;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 15px;
+            background: #e8f5e9;
+            border-radius: 18px;
+            width: fit-content;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .typing-indicator {
+            background: #2a2a2a;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-green);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header-controls {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-tabs {
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+
+            .nav-tab {
+                padding: 12px 15px;
+                font-size: 0.9rem;
+            }
+
+            .chat-container {
+                height: 450px;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-questions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .ai-button {
+                bottom: 65px;
+                left: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+
+            .nav-item {
+                min-width: 50px;
+                padding: 6px 8px;
+            }
+
+            .nav-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+
+            .nav-label {
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quick-questions {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tab span {
+                display: none;
+            }
+
+            .nav-tab {
+                padding: 12px;
+                justify-content: center;
+            }
+
+            .ai-button {
+                bottom: 60px;
+                left: 10px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="app-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <i class="fas fa-seedling"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>AgriSmart AI</h1>
+                        <p>Farmer Assistant for Zambia</p>
+                    </div>
+                </div>
+                <div class="header-controls">
+                    <button class="header-btn" id="theme-toggle">
+                        <i class="fas fa-moon"></i>
+                        <span>Dark</span>
+                    </button>
+                    <button class="header-btn" id="demo-notice">
+                        <i class="fas fa-flask"></i>
+                        <span>Demo</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation -->
+    <nav class="main-nav">
+        <div class="container nav-container">
+            <ul class="nav-tabs">
+                <li class="nav-tab active" data-tab="ai-assistant">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Assistant</span>
+                </li>
+                <li class="nav-tab" data-tab="crop-guide">
+                    <i class="fas fa-leaf"></i>
+                    <span>Crop Guide</span>
+                </li>
+                <li class="nav-tab" data-tab="livestock-guide">
+                    <i class="fas fa-paw"></i>
+                    <span>Livestock</span>
+                </li>
+                <li class="nav-tab" data-tab="weather-tips">
+                    <i class="fas fa-cloud-sun"></i>
+                    <span>Weather</span>
+                </li>
+                <li class="nav-tab" data-tab="market-prices">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Market Prices</span>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content container">
+        <!-- AI Assistant Section -->
+        <section class="content-section active" id="ai-assistant">
+            <div class="chat-section">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h3><i class="fas fa-robot"></i> AgriSmart AI Assistant</h3>
+                        <p>Ask me anything about farming</p>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message ai-message">
+                            <div style="font-weight: bold; margin-bottom: 5px;">AgriSmart AI</div>
+                            Hello! I'm your AI farming assistant. I can help with crops, livestock, pests, weather, and market advice. How can I help you today?
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="user-input" placeholder="Type your question...">
+                        <button class="send-btn" id="send-btn">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quick-questions">
+                    <div class="quick-question" data-question="When to plant maize?">
+                        <i class="fas fa-seedling"></i>
+                        <span>When to plant maize?</span>
+                    </div>
+                    <div class="quick-question" data-question="Cow has diarrhea">
+                        <i class="fas fa-shield-virus"></i>
+                        <span>Cow has diarrhea</span>
+                    </div>
+                    <div class="quick-question" data-question="Yellow leaves on tomatoes">
+                        <i class="fas fa-leaf"></i>
+                        <span>Yellow leaves on tomatoes</span>
+                    </div>
+                    <div class="quick-question" data-question="Best fertilizer for cassava">
+                        <i class="fas fa-flask"></i>
+                        <span>Best fertilizer for cassava</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Crop Guide Section -->
+        <section class="content-section" id="crop-guide">
+            <h2 class="section-title">
+                <i class="fas fa-leaf"></i>
+                <span>Crop Guide</span>
+            </h2>
+            <div class="cards-grid" id="crop-cards">
+                <!-- Filled by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Livestock Guide Section -->
+        <section class="content-section" id="livestock-guide">
+            <h2 class="section-title">
+                <i class="fas fa-paw"></i>
+                <span>Livestock Guide</span>
+            </h2>
+            <div class="cards-grid" id="livestock-cards">
+                <!-- Filled by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Weather Tips Section -->
+        <section class="content-section" id="weather-tips">
+            <h2 class="section-title">
+                <i class="fas fa-cloud-sun"></i>
+                <span>Weather Tips</span>
+            </h2>
+            <div class="cards-grid">
+                <div class="info-card">
+                    <div class="card-header">
+                        <i class="fas fa-sun"></i>
+                        <h3>Dry Season (May-Oct)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-item">
+                            <span>Activities:</span>
+                            <span>Harvesting, land prep</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Crops:</span>
+                            <span>Winter wheat, garlic</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Livestock:</span>
+                            <span>Provide shade, water</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-header">
+                        <i class="fas fa-cloud-rain"></i>
+                        <h3>Rainy Season (Nov-Apr)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-item">
+                            <span>Activities:</span>
+                            <span>Planting, weeding</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Crops:</span>
+                            <span>Maize, groundnuts</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Livestock:</span>
+                            <span>Shelter, prevent fungus</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-header">
+                        <i class="fas fa-temperature-high"></i>
+                        <h3>Hot Months (Sep-Oct)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-item">
+                            <span>Activities:</span>
+                            <span>Land prep, seed select</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Crops:</span>
+                            <span>Early maize, sunflowers</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Livestock:</span>
+                            <span>Extra water, cooling</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Market Prices Section -->
+        <section class="content-section" id="market-prices">
+            <h2 class="section-title">
+                <i class="fas fa-chart-line"></i>
+                <span>Market Prices (ZMW/kg)</span>
+            </h2>
+            <div class="cards-grid">
+                <div class="info-card">
+                    <div class="card-header">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>Current Prices</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-item">
+                            <span>Maize:</span>
+                            <span style="color: #4caf50;">ZMW 8.50 ↑</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Cassava:</span>
+                            <span>ZMW 6.20</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Groundnuts:</span>
+                            <span style="color: #4caf50;">ZMW 18.00 ↑</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Tomatoes:</span>
+                            <span style="color: #f44336;">ZMW 12.50 ↓</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Beans:</span>
+                            <span>ZMW 15.00</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Rice:</span>
+                            <span style="color: #4caf50;">ZMW 22.00 ↑</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-header">
+                        <i class="fas fa-lightbulb"></i>
+                        <h3>Trading Advice</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-item">
+                            <span>Sell Now:</span>
+                            <span>Maize, Groundnuts</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Hold:</span>
+                            <span>Cassava, Beans</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Best Time:</span>
+                            <span>Nov-Dec (planting season)</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Storage:</span>
+                            <span>Keep maize dry 2-3 months</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Transport:</span>
+                            <span>ZMW 1.50-3.00/kg</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Quality:</span>
+                            <span>Clean = 15-30% more</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating AI Button -->
+    <button class="ai-button" id="ai-floating-btn" title="Quick AI Assistance">
+        <i class="fas fa-robot"></i>
+    </button>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <div class="nav-item active" data-action="ai-chat">
+            <div class="nav-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+            <span class="nav-label">AI Chat</span>
+        </div>
+
+        <div class="nav-item" data-action="planting-calendar">
+            <div class="nav-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <span class="nav-label">Calendar</span>
+        </div>
+
+        <div class="nav-item" data-action="pest-id">
+            <div class="nav-icon">
+                <i class="fas fa-bug"></i>
+            </div>
+            <span class="nav-label">Pest ID</span>
+        </div>
+
+        <div class="nav-item" data-action="weather-alert">
+            <div class="nav-icon">
+                <i class="fas fa-cloud-sun-rain"></i>
+            </div>
+            <span class="nav-label">Weather</span>
+        </div>
+
+        <div class="nav-item" data-action="market-update">
+            <div class="nav-icon">
+                <i class="fas fa-bell"></i>
+            </div>
+            <span class="nav-label">Alerts</span>
+        </div>
+
+        <!-- Hamburger Menu -->
+        <div class="hamburger-menu">
+            <button class="hamburger-btn" id="hamburger-btn">
+                <i class="fas fa-ellipsis-h"></i>
+            </button>
+            <div class="dropdown-menu" id="dropdown-menu">
+                <div class="dropdown-item" data-action="fertilizer-calc">
+                    <i class="fas fa-calculator"></i>
+                    <span>Fertilizer Calc</span>
+                </div>
+                <div class="dropdown-item" data-action="emergency">
+                    <i class="fas fa-first-aid"></i>
+                    <span>Emergency</span>
+                </div>
+                <div class="dropdown-item" data-action="save-chat">
+                    <i class="fas fa-save"></i>
+                    <span>Save Chat</span>
+                </div>
+                <div class="dropdown-item" data-action="share">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Share</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Footer -->
+    <footer class="app-footer container">
+        <p>AgriSmart AI - Simulated Farmer Assistant Prototype</p>
+        <p>Designed for Zambian farmers | Student Development Project</p>
+    </footer>
+
+    <script>
+        // KNOWLEDGE BASE
+        const knowledgeBase = {
+            crops: {
+                maize: {
+                    name: "Maize",
+                    plantingSeason: "Nov-Dec (early rains)",
+                    soilReq: "Well-drained loamy soil",
+                    spacing: "75-90cm rows, 25-30cm plants",
+                    fertilizer: "Compound D (200kg/ha) + Urea (100kg/ha)",
+                    pests: "Stem borers, armyworms",
+                    diseases: "Maize streak virus, leaf blight",
+                    harvestTime: "4-5 months",
+                    yield: "2-5 tons/ha",
+                    water: "500-800mm per season",
+                    icon: "🌽"
+                },
+                cassava: {
+                    name: "Cassava",
+                    plantingSeason: "Oct-Nov",
+                    soilReq: "Sandy loam, tolerates poor soils",
+                    spacing: "1m x 1m",
+                    fertilizer: "NPK 12-24-12, organic manure",
+                    pests: "Green mite, mealybugs",
+                    diseases: "Mosaic disease, brown streak",
+                    harvestTime: "9-24 months",
+                    yield: "10-40 tons/ha",
+                    water: "Drought tolerant",
+                    icon: "🥔"
+                },
+                groundnuts: {
+                    name: "Groundnuts",
+                    plantingSeason: "Dec-Jan",
+                    soilReq: "Light sandy loam",
+                    spacing: "45cm rows, 10cm plants",
+                    fertilizer: "Low nitrogen, need calcium",
+                    pests: "Aphids, termites",
+                    diseases: "Rosette, leaf spot",
+                    harvestTime: "3-5 months",
+                    yield: "1-2 tons/ha",
+                    water: "500-700mm",
+                    icon: "🥜"
+                },
+                tomatoes: {
+                    name: "Tomatoes",
+                    plantingSeason: "Feb-Apr or Oct-Nov",
+                    soilReq: "Well-drained loam",
+                    spacing: "60cm rows, 45cm plants",
+                    fertilizer: "Balanced NPK, more potassium",
+                    pests: "Tuta absoluta, whiteflies",
+                    diseases: "Late blight, bacterial wilt",
+                    harvestTime: "2-3 months",
+                    yield: "15-40 tons/ha",
+                    water: "Regular watering",
+                    icon: "🍅"
+                }
+            },
+            
+            livestock: {
+                cattle: {
+                    name: "Cattle",
+                    feeding: "Grazing + supplements",
+                    diseases: "East Coast Fever, Foot and Mouth",
+                    prevention: "Vaccination, dipping, quarantine",
+                    housing: "3-4 sq.m per animal",
+                    vaccinations: "Anthrax, Blackquarter",
+                    breeding: "12-14 month calving interval",
+                    icon: "🐄"
+                },
+                goats: {
+                    name: "Goats",
+                    feeding: "Browse bushes, grass",
+                    diseases: "PPR, worms, lung disease",
+                    prevention: "Deworm quarterly, clean water",
+                    housing: "1-2 sq.m per goat",
+                    vaccinations: "PPR, Enterotoxaemia",
+                    breeding: "Twice yearly kidding possible",
+                    icon: "🐐"
+                },
+                chickens: {
+                    name: "Chickens",
+                    feeding: "Layer mash, grains",
+                    diseases: "Newcastle, Gumboro",
+                    prevention: "Vaccination, clean coop",
+                    housing: "1 sq.ft per bird",
+                    vaccinations: "Newcastle, Gumboro",
+                    eggProduction: "250-300 eggs/year",
+                    icon: "🐔"
+                }
+            },
+            
+            getAIResponse: function(userMessage) {
+                const message = userMessage.toLowerCase().trim();
+                
+                // Greetings
+                if (message.includes("hello") || message.includes("hi") || message.includes("hey")) {
+                    return "Hello! I'm AgriSmart AI. How can I help with your farming today?";
+                }
+                
+                // Crop questions
+                for (const cropKey in this.crops) {
+                    const crop = this.crops[cropKey];
+                    if (message.includes(cropKey) || message.includes(crop.name.toLowerCase())) {
+                        return `${crop.icon} <strong>${crop.name}</strong><br>
+                        • <strong>Plant:</strong> ${crop.plantingSeason}<br>
+                        • <strong>Soil:</strong> ${crop.soilReq}<br>
+                        • <strong>Fertilizer:</strong> ${crop.fertilizer}<br>
+                        • <strong>Pests:</strong> ${crop.pests}<br>
+                        • <strong>Harvest:</strong> ${crop.harvestTime}<br><br>
+                        <strong>Tip:</strong> Plant at start of rains, weed regularly.`;
+                    }
+                }
+                
+                // Livestock questions
+                for (const animalKey in this.livestock) {
+                    const animal = this.livestock[animalKey];
+                    if (message.includes(animalKey) || message.includes(animal.name.toLowerCase())) {
+                        return `${animal.icon} <strong>${animal.name}</strong><br>
+                        • <strong>Feeding:</strong> ${animal.feeding}<br>
+                        • <strong>Diseases:</strong> ${animal.diseases}<br>
+                        • <strong>Prevention:</strong> ${animal.prevention}<br>
+                        • <strong>Vaccinations:</strong> ${animal.vaccinations}<br><br>
+                        <strong>Tip:</strong> Keep housing clean, provide fresh water daily.`;
+                    }
+                }
+                
+                // Specific issues
+                if (message.includes("yellow") && message.includes("leaf")) {
+                    return "🌱 <strong>Yellow leaves:</strong><br>1. Nitrogen deficiency - apply fertilizer<br>2. Overwatering - improve drainage<br>3. Disease - check for spots<br>4. Pests - check underside of leaves";
+                }
+                
+                if (message.includes("diarrhea") && (message.includes("cow") || message.includes("cattle"))) {
+                    return "🐄 <strong>Cattle diarrhea:</strong><br>1. Isolate sick animal<br>2. Provide electrolytes<br>3. Check for parasites (deworm)<br>4. Contact vet if severe<br>5. Keep area clean and dry";
+                }
+                
+                if (message.includes("weather") || message.includes("rain")) {
+                    return "🌤️ <strong>Weather in Zambia:</strong><br>• Rainy season: Nov-Apr<br>• Dry season: May-Oct<br>• Plant maize in Nov-Dec<br>• Prepare land before rains<br>• Conserve soil moisture in dry season";
+                }
+                
+                if (message.includes("price") || message.includes("market")) {
+                    return "📈 <strong>Market prices:</strong><br>• Maize: ZMW 8.50/kg<br>• Groundnuts: ZMW 18.00/kg<br>• Tomatoes: ZMW 12.50/kg<br>• Rice: ZMW 22.00/kg<br><br>Sell maize now, prices rising.";
+                }
+                
+                return "I'm here to help with farming questions. Please ask about specific crops, livestock, or farming problems.";
+            }
+        };
+
+        // APP STATE
+        const appState = {
+            darkMode: localStorage.getItem('darkMode') === 'true',
+            chatHistory: JSON.parse(localStorage.getItem('chatHistory')) || [],
+            currentTab: 'ai-assistant'
+        };
+
+        // DOM ELEMENTS
+        const themeToggle = document.getElementById('theme-toggle');
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const contentSections = document.querySelectorAll('.content-section');
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const quickQuestions = document.querySelectorAll('.quick-question');
+        const cropCardsContainer = document.getElementById('crop-cards');
+        const livestockCardsContainer = document.getElementById('livestock-cards');
+        const aiFloatingBtn = document.getElementById('ai-floating-btn');
+        const bottomNavItems = document.querySelectorAll('.bottom-nav .nav-item');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+        // INITIALIZE APP
+        function initApp() {
+            // Set theme
+            if (appState.darkMode) {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
+            }
+            
+            // Load chat history
+            if (appState.chatHistory.length > 0) {
+                appState.chatHistory.forEach(msg => {
+                    addMessageToChat(msg.text, msg.sender);
+                });
+            }
+            
+            // Populate crop cards
+            populateCropCards();
+            
+            // Populate livestock cards
+            populateLivestockCards();
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+
+        // POPULATE CROP CARDS
+        function populateCropCards() {
+            for (const cropKey in knowledgeBase.crops) {
+                const crop = knowledgeBase.crops[cropKey];
+                const card = document.createElement('div');
+                card.className = 'info-card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">${crop.icon}</span>
+                        <h3>${crop.name}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-item">
+                            <span>Planting:</span>
+                            <span>${crop.plantingSeason}</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Soil:</span>
+                            <span>${crop.soilReq}</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Spacing:</span>
+                            <span>${crop.spacing}</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Fertilizer:</span>
+                            <span>${crop.fertilizer}</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Harvest:</span>
+                            <span>${crop.harvestTime}</span>
+                        </div>
+                    </div>
+                `;
+                cropCardsContainer.appendChild(card);
+            }
+        }
+
+        // POPULATE LIVESTOCK CARDS
+        function populateLivestockCards() {
+            for (const animalKey in knowledgeBase.livestock) {
+                const animal = knowledgeBase.livestock[animalKey];
+                const card = document.createElement('div');
+                card.className = 'info-card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">${animal.icon}</span>
+                        <h3>${animal.name}</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="card-item">
+                            <span>Feeding:</span>
+                            <span>${animal.feeding}</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Diseases:</span>
+                            <span>${animal.diseases}</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Prevention:</span>
+                            <span>${animal.prevention}</span>
+                        </div>
+                        <div class="card-item">
+                            <span>Housing:</span>
+                            <span>${animal.housing}</span>
+                        </div>
+                        ${animal.eggProduction ? `<div class="card-item">
+                            <span>Eggs:</span>
+                            <span>${animal.eggProduction}</span>
+                        </div>` : ''}
+                    </div>
+                `;
+                livestockCardsContainer.appendChild(card);
+            }
+        }
+
+        // SETUP EVENT LISTENERS
+        function setupEventListeners() {
+            // Theme toggle
+            themeToggle.addEventListener('click', () => {
+                appState.darkMode = !appState.darkMode;
+                document.body.classList.toggle('dark-mode');
+                
+                if (appState.darkMode) {
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i><span>Light</span>';
+                } else {
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i><span>Dark</span>';
+                }
+                
+                localStorage.setItem('darkMode', appState.darkMode);
+            });
+
+            // Demo notice
+            document.getElementById('demo-notice').addEventListener('click', () => {
+                addMessageToChat("This is a simulated AI prototype for demonstration purposes. Real implementation would connect to agricultural databases and live APIs.", 'ai');
+            });
+
+            // Navigation tabs
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    appState.currentTab = tabId;
+                    
+                    // Update active tab
+                    navTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Show corresponding section
+                    contentSections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === tabId) {
+                            section.classList.add('active');
+                        }
+                    });
+                    
+                    // Update bottom nav
+                    updateBottomNav(tabId);
+                });
+            });
+
+            // Send message
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
+            });
+
+            // Quick questions
+            quickQuestions.forEach(question => {
+                question.addEventListener('click', () => {
+                    const questionText = question.getAttribute('data-question');
+                    userInput.value = questionText;
+                    sendMessage();
+                });
+            });
+
+            // Floating AI button
+            aiFloatingBtn.addEventListener('click', () => {
+                // Switch to AI Assistant tab
+                navTabs.forEach(t => t.classList.remove('active'));
+                document.querySelector('.nav-tab[data-tab="ai-assistant"]').classList.add('active');
+                
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                    if (section.id === 'ai-assistant') {
+                        section.classList.add('active');
+                    }
+                });
+                
+                // Focus input
+                setTimeout(() => userInput.focus(), 100);
+            });
+
+            // Bottom navigation
+            bottomNavItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const action = item.getAttribute('data-action');
+                    handleBottomNavAction(action);
+                });
+            });
+
+            // Hamburger menu
+            hamburgerBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            // Dropdown items
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const action = item.getAttribute('data-action');
+                    handleDropdownAction(action);
+                    dropdownMenu.classList.remove('show');
+                });
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!hamburgerBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+        }
+
+        // UPDATE BOTTOM NAV
+        function updateBottomNav(tabId) {
+            bottomNavItems.forEach(item => {
+                item.classList.remove('active');
+                
+                const action = item.getAttribute('data-action');
+                if (
+                    (tabId === 'ai-assistant' && action === 'ai-chat') ||
+                    (tabId === 'crop-guide' && action === 'planting-calendar') ||
+                    (tabId === 'livestock-guide' && action === 'pest-id') ||
+                    (tabId === 'weather-tips' && action === 'weather-alert') ||
+                    (tabId === 'market-prices' && action === 'market-update')
+                ) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // HANDLE BOTTOM NAV ACTIONS
+        function handleBottomNavAction(action) {
+            switch(action) {
+                case 'ai-chat':
+                    switchTab('ai-assistant');
+                    break;
+                case 'planting-calendar':
+                    addMessageToChat("📅 <strong>Planting Calendar Zambia:</strong><br>• Maize: Nov-Dec<br>• Cassava: Oct-Nov<br>• Groundnuts: Dec-Jan<br>• Beans: Dec-Jan<br>• Rice: Dec-Jan<br><br>Plant at start of rains for best results.", 'ai');
+                    switchTab('ai-assistant');
+                    break;
+                case 'pest-id':
+                    addMessageToChat("🐛 <strong>Common Pests:</strong><br>• Maize: Stem borers, armyworms<br>• Tomatoes: Tuta absoluta, whiteflies<br>• Groundnuts: Aphids, termites<br>• Cassava: Green mite, mealybugs<br><br>Describe pest for specific control methods.", 'ai');
+                    switchTab('ai-assistant');
+                    break;
+                case 'weather-alert':
+                    addMessageToChat("🌤️ <strong>Weather Alert:</strong> Good planting conditions expected next week. Prepare land now. Normal rainfall predicted for November-December planting season.", 'ai');
+                    switchTab('ai-assistant');
+                    break;
+                case 'market-update':
+                    addMessageToChat("📈 <strong>Market Update:</strong> Maize prices rising (ZMW 8.50/kg). Groundnuts high demand (ZMW 18.00/kg). Consider selling stored maize now. Rice prices also rising.", 'ai');
+                    switchTab('ai-assistant');
+                    break;
+            }
+        }
+
+        // HANDLE DROPDOWN ACTIONS
+        function handleDropdownAction(action) {
+            switch(action) {
+                case 'fertilizer-calc':
+                    addMessageToChat("🧪 <strong>Fertilizer Calculator:</strong><br>For 1 hectare maize:<br>• Compound D: 200kg<br>• Urea: 100kg (apply at knee height)<br><br>Soil testing recommended for precise amounts.", 'ai');
+                    switchTab('ai-assistant');
+                    break;
+                case 'emergency':
+                    addMessageToChat("🚨 <strong>Emergency Contacts:</strong><br>1. Vet emergency: Isolate animal, call vet<br>2. Crop emergency: Contact extension officer<br>3. District Agricultural Office for help<br>4. Take photos of problem for diagnosis", 'ai');
+                    switchTab('ai-assistant');
+                    break;
+                case 'save-chat':
+                    saveChatHistory();
+                    break;
+                case 'share':
+                    shareChat();
+                    break;
+            }
+        }
+
+        // SWITCH TAB
+        function switchTab(tabId) {
+            navTabs.forEach(t => t.classList.remove('active'));
+            document.querySelector(`.nav-tab[data-tab="${tabId}"]`).classList.add('active');
+            
+            contentSections.forEach(section => {
+                section.classList.remove('active');
+                if (section.id === tabId) {
+                    section.classList.add('active');
+                }
+            });
+            
+            appState.currentTab = tabId;
+            updateBottomNav(tabId);
+        }
+
+        // SEND MESSAGE
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            // Add user message
+            addMessageToChat(message, 'user');
+            userInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Get AI response after delay
+            setTimeout(() => {
+                removeTypingIndicator();
+                const response = knowledgeBase.getAIResponse(message);
+                addMessageToChat(response, 'ai');
+                
+                // Save to history
+                saveToChatHistory(message, 'user');
+                saveToChatHistory(response, 'ai');
+            }, 1000 + Math.random() * 1000);
+        }
+
+        // ADD MESSAGE TO CHAT
+        function addMessageToChat(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            if (sender === 'ai') {
+                messageDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">AgriSmart AI</div>${text}`;
+            } else {
+                messageDiv.innerHTML = `<div style="font-weight: bold; margin-bottom: 5px;">You</div>${text}`;
+            }
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // SHOW TYPING INDICATOR
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            `;
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // REMOVE TYPING INDICATOR
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
+        // SAVE TO CHAT HISTORY
+        function saveToChatHistory(text, sender) {
+            appState.chatHistory.push({ text, sender, timestamp: Date.now() });
+            
+            // Keep last 50 messages
+            if (appState.chatHistory.length > 50) {
+                appState.chatHistory = appState.chatHistory.slice(-50);
+            }
+            
+            localStorage.setItem('chatHistory', JSON.stringify(appState.chatHistory));
+        }
+
+        // SAVE CHAT HISTORY
+        function saveChatHistory() {
+            localStorage.setItem('chatHistory', JSON.stringify(appState.chatHistory));
+            addMessageToChat("💾 Chat history saved locally. You can continue from where you left off.", 'ai');
+        }
+
+        // SHARE CHAT
+        function shareChat() {
+            const chatText = appState.chatHistory
+                .slice(-5)
+                .map(msg => `${msg.sender === 'user' ? 'You' : 'AI'}: ${msg.text.replace(/<[^>]*>/g, '')}`)
+                .join('\n\n');
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'AgriSmart AI Chat',
+                    text: chatText,
+                    url: window.location.href
+                });
+            } else {
+                // Copy to clipboard
+                navigator.clipboard.writeText(chatText);
+                addMessageToChat("📋 Last 5 messages copied to clipboard. You can paste them anywhere.", 'ai');
+            }
+        }
+
+        // INITIALIZE APP
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
